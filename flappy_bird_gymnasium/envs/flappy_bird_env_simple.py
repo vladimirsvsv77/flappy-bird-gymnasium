@@ -70,7 +70,7 @@ class FlappyBirdEnvSimple(gymnasium.Env):
             be drawn.
     """
 
-    metadata = {"render_modes": ["human"], "render_fps": 30}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
 
     def __init__(
         self,
@@ -80,6 +80,7 @@ class FlappyBirdEnvSimple(gymnasium.Env):
         pipe_gap: int = 100,
         bird_color: str = "yellow",
         pipe_color: str = "green",
+        render_mode: Optional[str] = None,
         background: Optional[str] = "day",
     ) -> None:
         self.action_space = gymnasium.spaces.Discrete(2)
@@ -97,6 +98,18 @@ class FlappyBirdEnvSimple(gymnasium.Env):
         self._bird_color = bird_color
         self._pipe_color = pipe_color
         self._bg_type = background
+
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+
+        if render_mode is not None:
+            self.renderer = FlappyBirdRenderer(
+                screen_size=self._screen_size,
+                audio_on=audio_on,
+                bird_color=bird_color,
+                pipe_color=pipe_color,
+                background=background,
+            )
 
     def _get_observation(self):
         pipes = []
@@ -193,19 +206,14 @@ class FlappyBirdEnvSimple(gymnasium.Env):
 
     def render(self) -> None:
         """Renders the next frame."""
-        if self._renderer is None:
-            self._renderer = FlappyBirdRenderer(
-                screen_size=self._screen_size,
-                audio_on=self._audio_on,
-                bird_color=self._bird_color,
-                pipe_color=self._pipe_color,
-                background=self._bg_type,
-            )
-            self._renderer.game = self._game
-            self._renderer.make_display()
+        self.renderer.draw_surface(show_score=True)
+        if self.render_mode == "rgb_array":
+            return pygame.surfarray.array3d(self.renderer.surface)
+        else:
+            if self.renderer.display is None:
+                self.renderer.make_display()
 
-        self._renderer.draw_surface(show_score=True)
-        self._renderer.update_display()
+            self.renderer.update_display()
 
     def close(self):
         """Closes the environment."""

@@ -66,7 +66,7 @@ class FlappyBirdEnvRGB(gymnasium.Env):
         pipe_gap: int = 100,
         bird_color: str = "yellow",
         pipe_color: str = "green",
-        render_mode=None,
+        render_mode: Optional[str] = None,
         background: Optional[str] = None,
     ) -> None:
         self.action_space = gymnasium.spaces.Discrete(2)
