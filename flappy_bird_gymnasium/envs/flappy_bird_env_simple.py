@@ -25,6 +25,7 @@
 numerical information about the game's state as observations.
 """
 
+import time
 from typing import Dict, Optional, Tuple, Union
 
 import gymnasium
@@ -214,6 +215,7 @@ class FlappyBirdEnvSimple(gymnasium.Env):
                 self._renderer.make_display()
 
             self._renderer.update_display()
+            time.sleep(1 / self.metadata["render_fps"])
 
     def close(self):
         """Closes the environment."""
