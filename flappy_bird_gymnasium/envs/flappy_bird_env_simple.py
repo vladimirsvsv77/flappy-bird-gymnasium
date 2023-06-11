@@ -75,7 +75,7 @@ class FlappyBirdEnvSimple(gymnasium.Env):
     def __init__(
         self,
         screen_size: Tuple[int, int] = (288, 512),
-        audio_on: bool = True,
+        audio_on: bool = False,
         normalize_obs: bool = True,
         pipe_gap: int = 100,
         bird_color: str = "yellow",
@@ -103,7 +103,7 @@ class FlappyBirdEnvSimple(gymnasium.Env):
         self.render_mode = render_mode
 
         if render_mode is not None:
-            self.renderer = FlappyBirdRenderer(
+            self._renderer = FlappyBirdRenderer(
                 screen_size=self._screen_size,
                 audio_on=audio_on,
                 bird_color=bird_color,
@@ -206,14 +206,14 @@ class FlappyBirdEnvSimple(gymnasium.Env):
 
     def render(self) -> None:
         """Renders the next frame."""
-        self.renderer.draw_surface(show_score=True)
+        self._renderer.draw_surface(show_score=True)
         if self.render_mode == "rgb_array":
-            return pygame.surfarray.array3d(self.renderer.surface)
+            return pygame.surfarray.array3d(self._renderer.surface)
         else:
-            if self.renderer.display is None:
-                self.renderer.make_display()
+            if self._renderer.display is None:
+                self._renderer.make_display()
 
-            self.renderer.update_display()
+            self._renderer.update_display()
 
     def close(self):
         """Closes the environment."""
