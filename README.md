@@ -64,7 +64,7 @@ Like with other `gymnasium` environments, it's very easy to use `flappy-bird-gym
 Simply import the package and create the environment with the `make` function.
 Take a look at the sample code below:
 
-```
+```python
 import time
 import flappy_bird_gymnasium
 import gymnasium
