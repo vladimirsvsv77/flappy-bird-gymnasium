@@ -182,6 +182,7 @@ class FlappyBirdRenderer:
                 "call the `make_display()` method."
             )
 
+        pygame.event.get()
         self.display.blit(self.surface, [0, 0])
         pygame.display.update()
 
