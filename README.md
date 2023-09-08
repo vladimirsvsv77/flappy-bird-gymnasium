@@ -11,10 +11,8 @@ based on the [flappy-bird-gym](https://github.com/Talendar/flappy-bird-gym) proj
 
 ## State space
 
-The "FlappyBird-rgb-v0" environment, yields RGB-arrays (images)
-representing the game's screen. The "FlappyBird-v0" environment, on the other
-hand, yields simple numerical information about the game's state as
-observations.
+The "FlappyBird-v0" environment, yields simple numerical information about the game's state as
+observations or RGB-arrays (images) representing the game's screen.
 
 ### `FlappyBird-v0`
 * the last pipe's horizontal position
@@ -29,9 +27,6 @@ observations.
 * player's vertical position
 * player's vertical velocity
 * player's rotation
-
-### `FlappyBird-rgb-v0`
-The RGB image of size 288, 512 pixels. The pixel values are from range [0, 255]. The image does not contain score of bird.
 
 ## Action space
 
