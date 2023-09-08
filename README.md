@@ -4,7 +4,7 @@
 [![PyPI](https://img.shields.io/pypi/v/flappy-bird-gymnasium)](https://pypi.org/project/flappy-bird-gymnasium/)
 [![License](https://img.shields.io/github/license/markub3327/flappy-bird-gymnasium)](https://github.com/markub3327/flappy-bird-gymnasium/blob/master/LICENSE)
 
-This repository contains the implementation of two Gymnasium environments for
+This repository contains the implementation of Gymnasium environment for
 the Flappy Bird game. The implementation of the game's logic and graphics was
 based on the [flappy-bird-gym](https://github.com/Talendar/flappy-bird-gym) project, by
 [@Talendar](https://github.com/Talendar). 
