@@ -28,6 +28,8 @@ observations or RGB-arrays (images) representing the game's screen.
 * player's vertical velocity
 * player's rotation
 
+* or RGB-array (image) representing the game's screen
+
 ## Action space
 
 * 0 - **do nothing**
