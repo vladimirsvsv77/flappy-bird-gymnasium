@@ -184,6 +184,9 @@ class FlappyBirdEnv(gymnasium.Env):
         done = not alive
         info = {"score": self._game.score}
 
+        if self.render_mode == "human":
+            self.render()
+
         return obs, reward, done, False, info
 
     def reset(self, seed=None, options=None):
@@ -197,6 +200,9 @@ class FlappyBirdEnv(gymnasium.Env):
         )
         if self._renderer is not None:
             self._renderer.game = self._game
+
+        if self.render_mode == "human":
+            self.render()
 
         info = {"score": self._game.score}
         return self._get_observation(), info

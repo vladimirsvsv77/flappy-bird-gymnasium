@@ -1,8 +1,5 @@
-import time
-
 import gymnasium
 import numpy as np
-import pygame
 import tensorflow as tf
 
 import flappy_bird_gymnasium
@@ -48,8 +45,8 @@ class DuelingDQN(tf.keras.Model):
         return tf.math.argmax(q_value, axis=-1)[0]
 
 
-def play(epoch=10, audio_on=True, render=True):
-    env = gymnasium.make("FlappyBird-v0", audio_on=audio_on)
+def play(epoch=10, audio_on=True, render_mode="human"):
+    env = gymnasium.make("FlappyBird-v0", audio_on=audio_on, render_mode=render_mode)
 
     # init models
     q_model = DuelingDQN(env.action_space.n)
@@ -58,23 +55,14 @@ def play(epoch=10, audio_on=True, render=True):
 
     # run
     for _ in range(epoch):
-        clock = pygame.time.Clock()
         score = 0
 
         state, _ = env.reset(seed=123)
         state = np.expand_dims(state, axis=0)
         while True:
-            if render:
-                env.render()
-
             # Getting action
             action = q_model.get_action(state)
             action = np.array(action, copy=False, dtype=env.env.action_space.dtype)
-
-            if render:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
 
             # Processing action
             next_state, reward, done, _, info = env.step(action)
@@ -83,13 +71,7 @@ def play(epoch=10, audio_on=True, render=True):
             score += reward
             print(f"Obs: {state}\n" f"Action: {action}\n" f"Score: {score}\n")
 
-            if render:
-                clock.tick(30)
-
             if done:
-                if render:
-                    env.render()
-                    time.sleep(0.6)
                 break
 
     env.close()
@@ -99,7 +81,7 @@ def play(epoch=10, audio_on=True, render=True):
 
 
 def test_play():
-    play(epoch=1, audio_on=False, render=False)
+    play(epoch=1, audio_on=False, render_mode=None)
 
 
 if __name__ == "__main__":

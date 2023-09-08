@@ -23,51 +23,40 @@
 # ==============================================================================
 
 """ Tests the simple-observations version of the Flappy Bird environment with a
-human player.
+random agent.
 """
 
-import time
-
 import gymnasium
-import pygame
+import numpy as np
 
 import flappy_bird_gymnasium
 
 
-def play():
-    env = gymnasium.make("FlappyBird-v0")
-
-    clock = pygame.time.Clock()
+def play(audio_on=True, render_mode="human"):
+    env = gymnasium.make("FlappyBird-v0", audio_on=audio_on, render_mode=render_mode)
     score = 0
-
-    obs = env.reset()
+    obs = env.reset(seed=123)
     while True:
-        env.render()
-
-        # Getting action:
-        action = 0
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-            if event.type == pygame.KEYDOWN and (
-                event.key == pygame.K_SPACE or event.key == pygame.K_UP
-            ):
-                action = 1
+        # Getting random action:
+        action = env.action_space.sample()
 
         # Processing:
         obs, reward, done, _, info = env.step(action)
 
         score += reward
-        print(f"Obs: {obs}\n" f"Action: {action}\n" f"Score: {score}\n")
-
-        clock.tick(15)
+        print(f"Obs: {obs}\n" f"Score: {score}\n")
 
         if done:
-            env.render()
-            time.sleep(0.6)
             break
 
     env.close()
+    assert obs.shape == (12,)
+    assert info["score"] == 0
+    np.testing.assert_allclose(score, 8.99999999999998)
+
+
+def test_play():
+    play(audio_on=False, render_mode=None)
 
 
 if __name__ == "__main__":

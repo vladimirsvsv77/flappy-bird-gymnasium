@@ -62,10 +62,9 @@ Simply import the package and create the environment with the `make` function.
 Take a look at the sample code below:
 
 ```python
-import time
 import flappy_bird_gymnasium
 import gymnasium
-env = gymnasium.make("FlappyBird-v0")
+env = gymnasium.make("FlappyBird-v0", render_mode="human")
 
 obs, _ = env.reset()
 while True:
@@ -75,11 +74,6 @@ while True:
 
     # Processing:
     obs, reward, terminated, _, info = env.step(action)
-    
-    # Rendering the game:
-    # (remove this two lines during training)
-    env.render()
-    time.sleep(1 / 30)  # FPS
     
     # Checking if the player is still alive
     if terminated:
