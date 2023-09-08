@@ -29,7 +29,7 @@ from typing import List
 
 import setuptools
 
-_VERSION = "0.2.2"
+_VERSION = "0.3.0"
 
 # Short description.
 short_description = "A Gymnasium environment for the Flappy Bird game."

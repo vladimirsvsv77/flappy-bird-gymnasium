@@ -43,7 +43,7 @@ from flappy_bird_gymnasium.envs.game_logic import (
 from flappy_bird_gymnasium.envs.renderer import FlappyBirdRenderer
 
 
-class FlappyBirdEnvSimple(gymnasium.Env):
+class FlappyBirdEnv(gymnasium.Env):
     """Flappy Bird Gymnasium environment that yields simple observations.
 
     The observations yielded by this environment are simple numerical
