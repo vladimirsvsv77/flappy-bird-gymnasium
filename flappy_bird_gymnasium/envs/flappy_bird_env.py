@@ -32,7 +32,7 @@ import gymnasium
 import numpy as np
 import pygame
 
-from flappy_bird_gymnasium.envs.constants import PIPE_HEIGHT, PLAYER_MAX_VEL_Y
+from flappy_bird_gymnasium.envs.constants import LIDAR_MAX_DISTANCE
 from flappy_bird_gymnasium.envs.game_logic import FlappyBirdLogic
 from flappy_bird_gymnasium.envs.renderer import FlappyBirdRenderer
 
@@ -128,6 +128,10 @@ class FlappyBirdEnv(gymnasium.Env):
                 * an info dictionary
         """
         obs, reward, alive = self._game.update_state(action)
+
+        # normalize state
+        obs = obs / LIDAR_MAX_DISTANCE
+
         done = not alive
         info = {"score": self._game.score}
 
@@ -159,6 +163,9 @@ class FlappyBirdEnv(gymnasium.Env):
             self._game.lower_pipes,
             self._game.ground,
         )
+
+        # normalize state
+        obs = obs / LIDAR_MAX_DISTANCE
 
         info = {"score": self._game.score}
         return obs, info
