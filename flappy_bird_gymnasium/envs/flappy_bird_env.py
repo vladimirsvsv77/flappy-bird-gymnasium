@@ -32,14 +32,8 @@ import gymnasium
 import numpy as np
 import pygame
 
-from flappy_bird_gymnasium.envs.game_logic import (
-    PIPE_HEIGHT,
-    PIPE_WIDTH,
-    PLAYER_HEIGHT,
-    PLAYER_MAX_VEL_Y,
-    PLAYER_WIDTH,
-    FlappyBirdLogic,
-)
+from flappy_bird_gymnasium.envs.constants import PIPE_HEIGHT, PLAYER_MAX_VEL_Y
+from flappy_bird_gymnasium.envs.game_logic import FlappyBirdLogic
 from flappy_bird_gymnasium.envs.renderer import FlappyBirdRenderer
 
 
@@ -86,7 +80,7 @@ class FlappyBirdEnv(gymnasium.Env):
     ) -> None:
         self.action_space = gymnasium.spaces.Discrete(2)
         self.observation_space = gymnasium.spaces.Box(
-            -np.inf, np.inf, shape=(12,), dtype=np.float64
+            -np.inf, np.inf, shape=(180,), dtype=np.float64
         )
         self._screen_size = screen_size
         self._normalize_obs = normalize_obs
@@ -112,52 +106,6 @@ class FlappyBirdEnv(gymnasium.Env):
                 background=background,
             )
 
-    def _get_observation(self):
-        pipes = []
-        for up_pipe, low_pipe in zip(self._game.upper_pipes, self._game.lower_pipes):
-            # the pipe is behind the screen?
-            if low_pipe["x"] > self._screen_size[0]:
-                pipes.append((self._screen_size[0], 0, self._screen_size[1]))
-            else:
-                pipes.append(
-                    (low_pipe["x"], (up_pipe["y"] + PIPE_HEIGHT), low_pipe["y"])
-                )
-
-        pipes = sorted(pipes, key=lambda x: x[0])
-        pos_y = self._game.player_y
-        vel_y = self._game.player_vel_y
-        rot = self._game.player_rot
-
-        if self._normalize_obs:
-            pipes = [
-                (
-                    h / self._screen_size[0],
-                    v1 / self._screen_size[1],
-                    v2 / self._screen_size[1],
-                )
-                for h, v1, v2 in pipes
-            ]
-            pos_y = pos_y / self._screen_size[1]
-            vel_y /= PLAYER_MAX_VEL_Y
-            rot /= 90
-
-        return np.array(
-            [
-                pipes[0][0],  # the last pipe's horizontal position
-                pipes[0][1],  # the last top pipe's vertical position
-                pipes[0][2],  # the last bottom pipe's vertical position
-                pipes[1][0],  # the next pipe's horizontal position
-                pipes[1][1],  # the next top pipe's vertical position
-                pipes[1][2],  # the next bottom pipe's vertical position
-                pipes[2][0],  # the next next pipe's horizontal position
-                pipes[2][1],  # the next next top pipe's vertical position
-                pipes[2][2],  # the next next bottom pipe's vertical position
-                pos_y,  # player's vertical position
-                vel_y,  # player's vertical velocity
-                rot,  # player's rotation
-            ]
-        )
-
     def step(
         self,
         action: Union[FlappyBirdLogic.Actions, int],
@@ -179,8 +127,7 @@ class FlappyBirdEnv(gymnasium.Env):
                   otherwise)
                 * an info dictionary
         """
-        reward, alive = self._game.update_state(action)
-        obs = self._get_observation()
+        obs, reward, alive = self._game.update_state(action)
         done = not alive
         info = {"score": self._game.score}
 
@@ -204,8 +151,17 @@ class FlappyBirdEnv(gymnasium.Env):
         if self.render_mode == "human":
             self.render()
 
+        obs = self._game.lidar.scan(
+            self._game.player_x,
+            self._game.player_y,
+            self._game.player_rot,
+            self._game.upper_pipes,
+            self._game.lower_pipes,
+            self._game.ground,
+        )
+
         info = {"score": self._game.score}
-        return self._get_observation(), info
+        return obs, info
 
     def set_color(self, color):
         if self._renderer is not None:

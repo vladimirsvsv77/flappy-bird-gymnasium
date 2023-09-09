@@ -35,12 +35,12 @@ from typing import Optional, Tuple
 import pygame
 
 from flappy_bird_gymnasium.envs import utils
-
-#: Player's rotation threshold.
-PLAYER_ROT_THR = 20
-
-#: Color to fill the surface's background when no background image was loaded.
-FILL_BACKGROUND_COLOR = (200, 200, 200)
+from flappy_bird_gymnasium.envs.constants import (
+    FILL_BACKGROUND_COLOR,
+    PLAYER_HEIGHT,
+    PLAYER_ROT_THR,
+    PLAYER_WIDTH,
+)
 
 
 class FlappyBirdRenderer:
@@ -144,7 +144,25 @@ class FlappyBirdRenderer:
             self.surface.blit(self.images["pipe"][1], (low_pipe["x"], low_pipe["y"]))
 
         # Base (ground)
-        self.surface.blit(self.images["base"], (self.game.base_x, self.game.base_y))
+        self.surface.blit(
+            self.images["base"], (self.game.ground["x"], self.game.ground["y"])
+        )
+
+        # LIDAR
+        for i in range(self.game.lidar.collisions.shape[0]):
+            pygame.draw.line(
+                self.surface,
+                "red",
+                (
+                    self.game.player_x + PLAYER_WIDTH,
+                    self.game.player_y + (PLAYER_HEIGHT / 2),
+                ),
+                (
+                    self.game.lidar.collisions[i][0],
+                    self.game.lidar.collisions[i][1],
+                ),
+                1,
+            )
 
         # Score
         # (must be drawn before the player, so the player overlaps it)
