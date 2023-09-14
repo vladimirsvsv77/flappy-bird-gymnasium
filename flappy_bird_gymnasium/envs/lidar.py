@@ -13,17 +13,17 @@ from flappy_bird_gymnasium.envs.constants import (
 class LIDAR:
     def __init__(self, max_distance):
         self._max_distance = max_distance
-        self.collisions = np.zeros((180, 2))
+        self.collisions = np.zeros((360, 2))
 
     def scan(self, player_x, player_y, player_rot, upper_pipes, lower_pipes, ground):
-        result = np.empty([180])
+        result = np.empty([360])
 
         # sort pipes from nearest to farthest
         upper_pipes = sorted(upper_pipes, key=lambda pipe: pipe["x"])
         lower_pipes = sorted(lower_pipes, key=lambda pipe: pipe["x"])
 
         # get collisions with precision 1 degree
-        for i, angle in enumerate(range(0, 180, 1)):
+        for i, angle in enumerate(range(0, 360, 1)):
             # Getting player's rotation
             visible_rot = PLAYER_ROT_THR
             if player_rot <= PLAYER_ROT_THR:
