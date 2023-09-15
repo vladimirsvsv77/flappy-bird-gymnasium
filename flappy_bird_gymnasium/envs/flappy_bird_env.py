@@ -182,13 +182,14 @@ class FlappyBirdEnv(gymnasium.Env):
 
     def render(self) -> None:
         """Renders the next frame."""
-        self._renderer.draw_surface(show_score=True)
         if self.render_mode == "rgb_array":
+            self._renderer.draw_surface(show_score=False)
             # Flip the image to retrieve a correct aspect
             return np.transpose(
                 pygame.surfarray.array3d(self._renderer.surface), axes=(1, 0, 2)
             )
         else:
+            self._renderer.draw_surface(show_score=True)
             if self._renderer.display is None:
                 self._renderer.make_display()
 
