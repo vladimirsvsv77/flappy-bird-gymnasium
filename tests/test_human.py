@@ -34,6 +34,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
 
+
 def play():
     env = gymnasium.make("FlappyBird-v0", audio_on=True, render_mode="human")
 
@@ -58,20 +59,22 @@ def play():
 
         score += reward
         steps += 1
-        print(f"Obs: {obs}\n" f"Action: {action}\n" f"Score: {score}\n Steps: {steps}\n")
+        print(
+            f"Obs: {obs}\n" f"Action: {action}\n" f"Score: {score}\n Steps: {steps}\n"
+        )
 
         if done:
             break
 
     # Saving video:
     fig = plt.figure()
-    ax = fig.add_subplot(projection='polar')
+    ax = fig.add_subplot(projection="polar")
 
     x = np.linspace((np.pi / 2), -(np.pi / 2), 180)
     x2 = np.linspace((np.pi / 2) - np.pi, -(np.pi / 2) - np.pi, 180)
     y = np.array(video_buffer)
-    line, = ax.plot(x, y[0, :180], '-') # ax.scatter(x, y[0, :180])
-    line1, = ax.plot(x2, y[0, 180:], '-') # ax.scatter(x2, y[0, 180:])
+    (line,) = ax.plot(x, y[0, :180], "-")  # ax.scatter(x, y[0, :180])
+    (line1,) = ax.plot(x2, y[0, 180:], "-")  # ax.scatter(x2, y[0, 180:])
     ax.set_ylim([-2, 2])
 
     def animate(i):
@@ -81,7 +84,6 @@ def play():
 
     ani = animation.FuncAnimation(fig, animate, repeat=True, frames=steps, interval=100)
     plt.show()
-
 
     env.close()
 

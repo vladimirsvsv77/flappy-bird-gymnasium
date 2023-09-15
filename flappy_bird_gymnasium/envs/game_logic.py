@@ -197,13 +197,13 @@ class FlappyBirdLogic:
 
     def get_lidar_distances(self):
         distances_front = self.lidar_front.scan(
-                self.player_x + PLAYER_WIDTH,
-                self.player_y + (PLAYER_HEIGHT / 2),
-                self.player_rot,
-                self.upper_pipes,
-                self.lower_pipes,
-                self.ground,
-            )
+            self.player_x + PLAYER_WIDTH,
+            self.player_y + (PLAYER_HEIGHT / 2),
+            self.player_rot,
+            self.upper_pipes,
+            self.lower_pipes,
+            self.ground,
+        )
         distances_back = self.lidar_back.scan(
             self.player_x - PLAYER_WIDTH,
             self.player_y + (PLAYER_HEIGHT / 2),
