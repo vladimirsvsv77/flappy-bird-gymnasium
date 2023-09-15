@@ -7,29 +7,63 @@ from flappy_bird_gymnasium.envs.constants import (
     PIPE_HEIGHT,
     PIPE_WIDTH,
     PLAYER_ROT_THR,
+    PLAYER_HEIGHT,
+    PLAYER_WIDTH,
 )
 
 
 class LIDAR:
-    def __init__(self, max_distance):
+    def __init__(self, max_distance, rotation):
         self._max_distance = max_distance
-        self.collisions = np.zeros((360, 2))
+        self._rotation = rotation
+        self.collisions = np.zeros((180, 2))
 
+    def draw(self, surface, player_x, player_y):
+        for i in range(self.collisions.shape[0]):
+            if self._rotation == 0:
+                pygame.draw.line(
+                    surface,
+                    "red",
+                    (
+                        player_x + PLAYER_WIDTH,
+                        player_y + (PLAYER_HEIGHT / 2),
+                    ),
+                    (
+                        self.collisions[i][0],
+                        self.collisions[i][1],
+                    ),
+                    1,
+                )
+            elif self._rotation == 180:
+                pygame.draw.line(
+                    surface,
+                    "red",
+                    (
+                        player_x,
+                        player_y + (PLAYER_HEIGHT / 2),
+                    ),
+                    (
+                        self.collisions[i][0],
+                        self.collisions[i][1],
+                    ),
+                    1,
+                )
+                
     def scan(self, player_x, player_y, player_rot, upper_pipes, lower_pipes, ground):
-        result = np.empty([360])
+        result = np.empty([180])
 
         # sort pipes from nearest to farthest
         upper_pipes = sorted(upper_pipes, key=lambda pipe: pipe["x"])
         lower_pipes = sorted(lower_pipes, key=lambda pipe: pipe["x"])
 
         # get collisions with precision 1 degree
-        for i, angle in enumerate(range(0, 360, 1)):
+        for i, angle in enumerate(range(0, 180, 1)):
             # Getting player's rotation
             visible_rot = PLAYER_ROT_THR
             if player_rot <= PLAYER_ROT_THR:
                 visible_rot = player_rot
 
-            rad = np.radians(angle - 90 - visible_rot)
+            rad = np.radians(angle - 90 - visible_rot - self._rotation)
             x = self._max_distance * np.cos(rad) + player_x
             y = self._max_distance * np.sin(rad) + player_y
             line = (player_x, player_y, x, y)

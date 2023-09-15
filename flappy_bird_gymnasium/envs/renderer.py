@@ -37,9 +37,7 @@ import pygame
 from flappy_bird_gymnasium.envs import utils
 from flappy_bird_gymnasium.envs.constants import (
     FILL_BACKGROUND_COLOR,
-    PLAYER_HEIGHT,
     PLAYER_ROT_THR,
-    PLAYER_WIDTH,
 )
 
 
@@ -149,20 +147,8 @@ class FlappyBirdRenderer:
         )
 
         # LIDAR
-        for i in range(self.game.lidar.collisions.shape[0]):
-            pygame.draw.line(
-                self.surface,
-                "red",
-                (
-                    self.game.player_x + PLAYER_WIDTH,
-                    self.game.player_y + (PLAYER_HEIGHT / 2),
-                ),
-                (
-                    self.game.lidar.collisions[i][0],
-                    self.game.lidar.collisions[i][1],
-                ),
-                1,
-            )
+        self.game.lidar_front.draw(self.surface, self.game.player_x, self.game.player_y)
+        self.game.lidar_back.draw(self.surface, self.game.player_x, self.game.player_y)
 
         # Score
         # (must be drawn before the player, so the player overlaps it)

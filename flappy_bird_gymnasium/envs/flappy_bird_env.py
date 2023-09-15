@@ -160,14 +160,8 @@ class FlappyBirdEnv(gymnasium.Env):
         if self.render_mode == "human":
             self.render()
 
-        obs = self._game.lidar.scan(
-            self._game.player_x,
-            self._game.player_y,
-            self._game.player_rot,
-            self._game.upper_pipes,
-            self._game.lower_pipes,
-            self._game.ground,
-        )
+        # get LIDAR
+        obs = self._game.get_lidar_distances()
 
         # normalize state
         if self._normalize_obs:
