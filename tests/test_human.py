@@ -30,12 +30,15 @@ import gymnasium
 import pygame
 
 import flappy_bird_gymnasium
-
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import numpy as np
 
 def play():
     env = gymnasium.make("FlappyBird-v0", audio_on=True, render_mode="human")
 
-    score = 0
+    score, steps = 0, 0
+    video_buffer = []
 
     obs = env.reset()
     while True:
@@ -51,12 +54,34 @@ def play():
 
         # Processing:
         obs, reward, done, _, info = env.step(action)
+        video_buffer.append(obs)
 
         score += reward
-        print(f"Obs: {obs}\n" f"Action: {action}\n" f"Score: {score}\n")
+        steps += 1
+        print(f"Obs: {obs}\n" f"Action: {action}\n" f"Score: {score}\n Steps: {steps}\n")
 
         if done:
             break
+
+    # Saving video:
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='polar')
+
+    x = np.linspace((np.pi / 2), -(np.pi / 2), 180)
+    x2 = np.linspace((np.pi / 2) - np.pi, -(np.pi / 2) - np.pi, 180)
+    y = np.array(video_buffer)
+    line, = ax.plot(x, y[0, :180], '-') # ax.scatter(x, y[0, :180])
+    line1, = ax.plot(x2, y[0, 180:], '-') # ax.scatter(x2, y[0, 180:])
+    ax.set_ylim([-2, 2])
+
+    def animate(i):
+        line.set_ydata(y[i, :180])
+        line1.set_ydata(y[i, 180:])
+        return line, line1
+
+    ani = animation.FuncAnimation(fig, animate, repeat=True, frames=steps, interval=100)
+    plt.show()
+
 
     env.close()
 
