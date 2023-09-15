@@ -48,6 +48,8 @@ class LIDAR:
                     ),
                     1,
                 )
+            else:
+                raise ValueError()
                 
     def scan(self, player_x, player_y, player_rot, upper_pipes, lower_pipes, ground):
         result = np.empty([180])
@@ -64,8 +66,17 @@ class LIDAR:
                 visible_rot = player_rot
 
             rad = np.radians(angle - 90 - visible_rot - self._rotation)
-            x = self._max_distance * np.cos(rad) + player_x
-            y = self._max_distance * np.sin(rad) + player_y
+            x = self._max_distance * np.cos(rad)
+            y = self._max_distance * np.sin(rad)
+            if self._rotation == 0:
+                x += player_x + PLAYER_WIDTH
+                y += player_y + (PLAYER_HEIGHT / 2)
+            elif self._rotation == 180:
+                x += player_x
+                y += player_y + (PLAYER_HEIGHT / 2)
+            else:
+                raise ValueError()
+
             line = (player_x, player_y, x, y)
             self.collisions[i] = (x, y)
 
