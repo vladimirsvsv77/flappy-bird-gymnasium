@@ -78,13 +78,16 @@ class LIDAR:
             x = self._max_distance * np.cos(rad) + offset_x
             y = self._max_distance * np.sin(rad) + offset_y
             line = (offset_x, offset_y, x, y)
-            self.collisions[i] = (x, y)
+            self.collisions[i] = (x, y) if y < ground["y"] else (x, ground["y"])
 
             # check ground collision
             ground_rect = pygame.Rect(0, ground["y"], BASE_WIDTH, BASE_HEIGHT)
             collision = ground_rect.clipline(line)
             if collision:
-                self.collisions[i] = collision[0]
+                self.collisions[i] = collision[0] if collision[0][1] < ground["y"] else (
+                    collision[0][0],
+                    ground["y"],
+                )
 
             # check pipe collision
             for up_pipe, low_pipe in zip(upper_pipes, lower_pipes):
@@ -101,10 +104,32 @@ class LIDAR:
                 collision_B = low_pipe_rect.clipline(line)
 
                 if collision_A:
-                    self.collisions[i] = collision_A[0]
+                    collision_A = collision_A[0]
+                    collision_A = collision_A if collision_A[0] <= up_pipe["x"] else (
+                        up_pipe["x"],
+                        collision_A[1],
+                    )
+                    collision_A = collision_A if player_x < up_pipe["x"] or player_x > up_pipe["x"] else (
+                        collision_A[0],
+                        up_pipe["y"],
+                    )
+                    self.collisions[i] = collision_A
                     break
                 elif collision_B:
-                    self.collisions[i] = collision_B[0]
+                    collision_B = collision_B[0]
+                    collision_B = collision_B if collision_B[0] <= low_pipe["x"] else (
+                        low_pipe["x"],
+                        collision_B[1],
+                    )
+                    collision_B = collision_B if collision_B[1] <= ground["y"] else (
+                        collision_B[0],
+                        ground["y"],
+                    )
+                    collision_B = collision_B if player_x < low_pipe["x"] or player_x > low_pipe["x"] else (
+                        collision_B[0],
+                        low_pipe["y"],
+                    )
+                    self.collisions[i] = collision_B
                     break
 
             # calculate distance
