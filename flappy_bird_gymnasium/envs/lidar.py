@@ -58,32 +58,31 @@ class LIDAR:
         upper_pipes = sorted(upper_pipes, key=lambda pipe: pipe["x"])
         lower_pipes = sorted(lower_pipes, key=lambda pipe: pipe["x"])
 
+        if self._rotation == 0:
+            offset_x = player_x + PLAYER_WIDTH
+            offset_y = player_y + (PLAYER_HEIGHT / 2)
+        elif self._rotation == 180:
+            offset_x = player_x
+            offset_y = player_y + (PLAYER_HEIGHT / 2)
+        else:
+            raise ValueError()
+
+        # Getting player's rotation
+        visible_rot = PLAYER_ROT_THR
+        if player_rot <= PLAYER_ROT_THR:
+            visible_rot = player_rot
+
         # get collisions with precision 1 degree
         for i, angle in enumerate(range(0, 180, 1)):
-            # Getting player's rotation
-            visible_rot = PLAYER_ROT_THR
-            if player_rot <= PLAYER_ROT_THR:
-                visible_rot = player_rot
-
             rad = np.radians(angle - 90 - visible_rot - self._rotation)
-            x = self._max_distance * np.cos(rad)
-            y = self._max_distance * np.sin(rad)
-            if self._rotation == 0:
-                x += player_x + PLAYER_WIDTH
-                y += player_y + (PLAYER_HEIGHT / 2)
-            elif self._rotation == 180:
-                x += player_x
-                y += player_y + (PLAYER_HEIGHT / 2)
-            else:
-                raise ValueError()
-
-            line = (player_x, player_y, x, y)
+            x = self._max_distance * np.cos(rad) + offset_x
+            y = self._max_distance * np.sin(rad) + offset_y
+            line = (offset_x, offset_y, x, y)
             self.collisions[i] = (x, y)
 
             # check ground collision
             ground_rect = pygame.Rect(0, ground["y"], BASE_WIDTH, BASE_HEIGHT)
             collision = ground_rect.clipline(line)
-            # print("gound collision: ", collision, " ", angle, "line: ", line)
             if collision:
                 self.collisions[i] = collision[0]
 
@@ -110,8 +109,8 @@ class LIDAR:
 
             # calculate distance
             result[i] = np.sqrt(
-                (player_x - self.collisions[i][0]) ** 2
-                + (player_y - self.collisions[i][1]) ** 2
+                (offset_x - self.collisions[i][0]) ** 2
+                + (offset_y - self.collisions[i][1]) ** 2
             )
 
         return result
