@@ -109,7 +109,7 @@ class FlappyBirdEnv(gymnasium.Env):
     def _normalize_state(self, state):
         state = ((state * 2) / LIDAR_MAX_DISTANCE) - 1
         return state
- 
+
     def step(
         self,
         action: Union[FlappyBirdLogic.Actions, int],
