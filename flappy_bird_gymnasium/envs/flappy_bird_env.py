@@ -106,6 +106,10 @@ class FlappyBirdEnv(gymnasium.Env):
                 background=background,
             )
 
+    def _normalize_state(self, state):
+        state = ((state * 2) / LIDAR_MAX_DISTANCE) - 1
+        return state
+ 
     def step(
         self,
         action: Union[FlappyBirdLogic.Actions, int],
@@ -130,7 +134,8 @@ class FlappyBirdEnv(gymnasium.Env):
         obs, reward, alive = self._game.update_state(action)
 
         # normalize state
-        obs = obs / LIDAR_MAX_DISTANCE
+        if self._normalize_obs:
+            obs = self._normalize_state(obs)
 
         done = not alive
         info = {"score": self._game.score}
@@ -165,7 +170,8 @@ class FlappyBirdEnv(gymnasium.Env):
         )
 
         # normalize state
-        obs = obs / LIDAR_MAX_DISTANCE
+        if self._normalize_obs:
+            obs = self._normalize_state(obs)
 
         info = {"score": self._game.score}
         return obs, info
