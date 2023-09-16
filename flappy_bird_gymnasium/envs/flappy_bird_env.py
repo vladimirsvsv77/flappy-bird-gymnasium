@@ -80,7 +80,7 @@ class FlappyBirdEnv(gymnasium.Env):
     ) -> None:
         self.action_space = gymnasium.spaces.Discrete(2)
         self.observation_space = gymnasium.spaces.Box(
-            -np.inf, np.inf, shape=(360,), dtype=np.float64
+            -np.inf, np.inf, shape=(180,), dtype=np.float64
         )
         self._screen_size = screen_size
         self._normalize_obs = normalize_obs
@@ -161,7 +161,14 @@ class FlappyBirdEnv(gymnasium.Env):
             self.render()
 
         # get LIDAR
-        obs = self._game.get_lidar_distances()
+        obs = self._game.lidar.scan(
+            self._game.player_x,
+            self._game.player_y,
+            self._game.player_rot,
+            self._game.upper_pipes,
+            self._game.lower_pipes,
+            self._game.ground,
+        )
 
         # normalize state
         if self._normalize_obs:

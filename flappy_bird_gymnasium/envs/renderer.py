@@ -147,8 +147,7 @@ class FlappyBirdRenderer:
         )
 
         # LIDAR
-        self.game.lidar_front.draw(self.surface, self.game.player_x, self.game.player_y)
-        self.game.lidar_back.draw(self.surface, self.game.player_x, self.game.player_y)
+        self.game.lidar.draw(self.surface, self.game.player_x, self.game.player_y)
 
         # Score
         # (must be drawn before the player, so the player overlaps it)

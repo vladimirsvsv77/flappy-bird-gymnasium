@@ -145,8 +145,7 @@ class FlappyBirdLogic:
         self._player_idx_gen = cycle([0, 1, 2, 1])
         self._loop_iter = 0
 
-        self.lidar_front = LIDAR(LIDAR_MAX_DISTANCE, rotation=0)
-        self.lidar_back = LIDAR(LIDAR_MAX_DISTANCE, rotation=180)
+        self.lidar = LIDAR(LIDAR_MAX_DISTANCE)
 
     class Actions(IntEnum):
         """Possible actions for the player to take."""
@@ -195,25 +194,6 @@ class FlappyBirdLogic:
 
         return False
 
-    def get_lidar_distances(self):
-        distances_front = self.lidar_front.scan(
-            self.player_x + PLAYER_WIDTH,
-            self.player_y + (PLAYER_HEIGHT / 2),
-            self.player_rot,
-            self.upper_pipes,
-            self.lower_pipes,
-            self.ground,
-        )
-        distances_back = self.lidar_back.scan(
-            self.player_x - PLAYER_WIDTH,
-            self.player_y + (PLAYER_HEIGHT / 2),
-            self.player_rot,
-            self.upper_pipes,
-            self.lower_pipes,
-            self.ground,
-        )
-        return np.concatenate([distances_front, distances_back], axis=-1)
-
     def update_state(self, action: Union[Actions, int]) -> bool:
         """Given an action taken by the player, updates the game's state.
 
@@ -234,7 +214,14 @@ class FlappyBirdLogic:
                 self.sound_cache = "wing"
 
         # get LIDAR
-        lidar_distances = self.get_lidar_distances()
+        lidar_distances = self.lidar.scan(
+            self.player_x,
+            self.player_y,
+            self.player_rot,
+            self.upper_pipes,
+            self.lower_pipes,
+            self.ground,
+        )
 
         self.last_action = action
         if self.check_crash():

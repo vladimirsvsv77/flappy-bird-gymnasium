@@ -71,18 +71,17 @@ def play():
     ax = fig.add_subplot(projection="polar")
 
     x = np.linspace((np.pi / 2), -(np.pi / 2), 180)
-    x2 = np.linspace((np.pi / 2) - np.pi, -(np.pi / 2) - np.pi, 180)
     y = np.array(video_buffer)
     (line,) = ax.plot(x, y[0, :180], "-")  # ax.scatter(x, y[0, :180])
-    (line1,) = ax.plot(x2, y[0, 180:], "-")  # ax.scatter(x2, y[0, 180:])
     ax.set_ylim([-2, 2])
 
     def animate(i):
-        line.set_ydata(y[i, :180])
-        line1.set_ydata(y[i, 180:])
-        return line, line1
+        line.set_ydata(y[i])
+        return (line,)
 
-    ani = animation.FuncAnimation(fig, animate, repeat=True, frames=steps, interval=100)
+    anim = animation.FuncAnimation(
+        fig, animate, repeat=True, frames=steps, interval=100
+    )
     plt.show()
 
     env.close()
