@@ -66,18 +66,32 @@ def play():
         if done:
             break
 
-    # Saving video:
-    fig = plt.figure()
-    ax = fig.add_subplot(projection="polar")
+    # Saving video
+    fig = plt.figure(figsize=(12, 6))
+    ax = fig.add_subplot(121, projection="polar")
+    ax2 = fig.add_subplot(122)
 
     x = np.linspace((np.pi / 2), -(np.pi / 2), 180)
-    y = np.array(video_buffer)
-    (line,) = ax.plot(x, y[0, :180], "-")  # ax.scatter(x, y[0, :180])
-    ax.set_ylim([-2, 2])
+    y = np.array(video_buffer)[:, :180]
+    (line,) = ax.plot(x, y[0], "-")  # ax.scatter(x, y[0, :180])
+    ax.set_ylim([-1, 1])
+    ax.set_title("LIDAR scan", fontdict={"fontweight": "bold"})
+
+    x2 = np.arange(steps)
+    y2 = np.array(video_buffer)[:, 179]
+    (line2,) = ax2.plot(x2[0], y2[0], "-")
+    ax2.set_xlim([0, steps])
+    ax2.set_ylim([-1, 1])
+    ax2.set_title("Relief", fontdict={"fontweight": "bold"})
 
     def animate(i):
-        line.set_ydata(y[i, :180])
-        return (line,)
+        # RADAR
+        line.set_ydata(y[i])
+
+        # RELIEF
+        line2.set_xdata(x2[:i])
+        line2.set_ydata(y2[:i])
+        return (line, line2)
 
     anim = animation.FuncAnimation(
         fig, animate, repeat=True, frames=steps, interval=150
