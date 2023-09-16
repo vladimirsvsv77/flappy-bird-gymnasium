@@ -80,7 +80,7 @@ def play():
         return (line,)
 
     anim = animation.FuncAnimation(
-        fig, animate, repeat=True, frames=steps, interval=100
+        fig, animate, repeat=True, frames=steps, interval=150
     )
     plt.show()
 

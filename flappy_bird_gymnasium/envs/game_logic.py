@@ -145,7 +145,7 @@ class FlappyBirdLogic:
         self._player_idx_gen = cycle([0, 1, 2, 1])
         self._loop_iter = 0
 
-        self.lidar = LIDAR(LIDAR_MAX_DISTANCE)
+        self.lidar = LIDAR(LIDAR_MAX_DISTANCE, self._screen_height)
 
     class Actions(IntEnum):
         """Possible actions for the player to take."""
@@ -203,25 +203,24 @@ class FlappyBirdLogic:
             self.upper_pipes,
             self.lower_pipes,
             self.ground,
+            normalize,
         )
 
         # player's information
-        pos_y = self.player_y
-        vel_y = self.player_vel_y
+        # pos_y = self.player_y
+        # vel_y = self.player_vel_y
         rot = self.player_rot
-
         if normalize:
-            distances = ((distances * 2) / LIDAR_MAX_DISTANCE) - 1
-            pos_y = pos_y / self._screen_height
-            vel_y /= PLAYER_MAX_VEL_Y
+            # pos_y = pos_y / self._screen_height
+            # vel_y /= PLAYER_MAX_VEL_Y
             rot /= 90
 
         return np.concatenate(
             [
                 distances,
                 [
-                    pos_y,  # player's vertical position
-                    vel_y,  # player's vertical velocity
+                    # pos_y,  # player's vertical position
+                    # vel_y,  # player's vertical velocity
                     rot,  # player's rotation
                 ],
             ],
