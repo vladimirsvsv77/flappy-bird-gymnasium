@@ -195,7 +195,7 @@ class FlappyBirdLogic:
         return False
 
     def get_observation(self, normalize=True):
-        # obstacles
+        # obstacles and relief
         distances = self.lidar.scan(
             self.player_x,
             self.player_y,
@@ -206,26 +206,7 @@ class FlappyBirdLogic:
             normalize,
         )
 
-        # player's information
-        # pos_y = self.player_y
-        # vel_y = self.player_vel_y
-        rot = self.player_rot
-        if normalize:
-            # pos_y = pos_y / self._screen_height
-            # vel_y /= PLAYER_MAX_VEL_Y
-            rot /= 90
-
-        return np.concatenate(
-            [
-                distances,
-                [
-                    # pos_y,  # player's vertical position
-                    # vel_y,  # player's vertical velocity
-                    rot,  # player's rotation
-                ],
-            ],
-            axis=-1,
-        )
+        return distances
 
     def update_state(self, action: Union[Actions, int], normalize=True) -> bool:
         """Given an action taken by the player, updates the game's state.
