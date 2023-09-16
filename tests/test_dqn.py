@@ -75,7 +75,7 @@ def play(epoch=10, audio_on=True, render_mode="human"):
                 break
 
     env.close()
-    assert state.shape == (1, 180)
+    assert state.shape == (1,) + env.observation_space.shape
     assert info["score"] > 0
     assert score > 10.999999999999977
 

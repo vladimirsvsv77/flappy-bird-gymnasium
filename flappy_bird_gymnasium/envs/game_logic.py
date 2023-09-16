@@ -194,7 +194,41 @@ class FlappyBirdLogic:
 
         return False
 
-    def update_state(self, action: Union[Actions, int]) -> bool:
+    def get_observation(self, normalize=True):
+        # obstacles
+        distances = self.lidar.scan(
+            self.player_x,
+            self.player_y,
+            self.player_rot,
+            self.upper_pipes,
+            self.lower_pipes,
+            self.ground,
+        )
+
+        # player's information
+        pos_y = self.player_y
+        vel_y = self.player_vel_y
+        rot = self.player_rot
+
+        if normalize:
+            distances = ((distances * 2) / LIDAR_MAX_DISTANCE) - 1
+            pos_y = pos_y / self._screen_height
+            vel_y /= PLAYER_MAX_VEL_Y
+            rot /= 90
+
+        return np.concatenate(
+            [
+                distances,
+                [
+                    pos_y,  # player's vertical position
+                    vel_y,  # player's vertical velocity
+                    rot,  # player's rotation
+                ],
+            ],
+            axis=-1,
+        )
+
+    def update_state(self, action: Union[Actions, int], normalize=True) -> bool:
         """Given an action taken by the player, updates the game's state.
 
         Args:
@@ -213,21 +247,11 @@ class FlappyBirdLogic:
                 self._player_flapped = True
                 self.sound_cache = "wing"
 
-        # get LIDAR
-        lidar_distances = self.lidar.scan(
-            self.player_x,
-            self.player_y,
-            self.player_rot,
-            self.upper_pipes,
-            self.lower_pipes,
-            self.ground,
-        )
-
         self.last_action = action
         if self.check_crash():
             self.sound_cache = "hit"
             reward = -1  # reward for dying
-            return lidar_distances, reward, False
+            return self.get_observation(normalize=normalize), reward, False
 
         # check for score
         player_mid_pos = self.player_x + PLAYER_WIDTH / 2
@@ -277,4 +301,4 @@ class FlappyBirdLogic:
                 low_pipe["x"] = new_low_pipe["x"]
                 low_pipe["y"] = new_low_pipe["y"]
 
-        return lidar_distances, reward, True
+        return self.get_observation(normalize=normalize), reward, True

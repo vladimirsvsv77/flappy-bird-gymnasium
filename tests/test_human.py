@@ -76,7 +76,7 @@ def play():
     ax.set_ylim([-2, 2])
 
     def animate(i):
-        line.set_ydata(y[i])
+        line.set_ydata(y[i, :180])
         return (line,)
 
     anim = animation.FuncAnimation(

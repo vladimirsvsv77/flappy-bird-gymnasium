@@ -80,7 +80,7 @@ class FlappyBirdEnv(gymnasium.Env):
     ) -> None:
         self.action_space = gymnasium.spaces.Discrete(2)
         self.observation_space = gymnasium.spaces.Box(
-            -np.inf, np.inf, shape=(180,), dtype=np.float64
+            -np.inf, np.inf, shape=(183,), dtype=np.float64
         )
         self._screen_size = screen_size
         self._normalize_obs = normalize_obs
@@ -106,10 +106,6 @@ class FlappyBirdEnv(gymnasium.Env):
                 background=background,
             )
 
-    def _normalize_state(self, state):
-        state = ((state * 2) / LIDAR_MAX_DISTANCE) - 1
-        return state
-
     def step(
         self,
         action: Union[FlappyBirdLogic.Actions, int],
@@ -131,11 +127,7 @@ class FlappyBirdEnv(gymnasium.Env):
                   otherwise)
                 * an info dictionary
         """
-        obs, reward, alive = self._game.update_state(action)
-
-        # normalize state
-        if self._normalize_obs:
-            obs = self._normalize_state(obs)
+        obs, reward, alive = self._game.update_state(action, self._normalize_obs)
 
         done = not alive
         info = {"score": self._game.score}
@@ -160,20 +152,7 @@ class FlappyBirdEnv(gymnasium.Env):
         if self.render_mode == "human":
             self.render()
 
-        # get LIDAR
-        obs = self._game.lidar.scan(
-            self._game.player_x,
-            self._game.player_y,
-            self._game.player_rot,
-            self._game.upper_pipes,
-            self._game.lower_pipes,
-            self._game.ground,
-        )
-
-        # normalize state
-        if self._normalize_obs:
-            obs = self._normalize_state(obs)
-
+        obs = self._game.get_observation(self._normalize_obs)
         info = {"score": self._game.score}
         return obs, info
 
