@@ -80,7 +80,7 @@ class FlappyBirdEnv(gymnasium.Env):
     ) -> None:
         self.action_space = gymnasium.spaces.Discrete(2)
         self.observation_space = gymnasium.spaces.Box(
-            -np.inf, np.inf, shape=(181,), dtype=np.float64
+            -np.inf, np.inf, shape=(182,), dtype=np.float64
         )
         self._screen_size = screen_size
         self._normalize_obs = normalize_obs

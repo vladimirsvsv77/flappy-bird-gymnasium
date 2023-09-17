@@ -78,7 +78,7 @@ def play():
     ax.set_title("LIDAR scan", fontdict={"fontweight": "bold"})
 
     x2 = np.arange(steps)
-    y2 = np.array(video_buffer)[:, -1]
+    y2 = np.array(video_buffer)[:, -2]
     (line2,) = ax2.plot(x2[0], y2[0], "-")
     ax2.set_xlim([0, steps])
     ax2.set_ylim([-1, 1])

@@ -206,7 +206,14 @@ class FlappyBirdLogic:
             normalize,
         )
 
-        return distances
+        pos_y = self.player_y
+        vel_y = self.player_vel_y
+        
+        if normalize:
+            pos_y = pos_y / self._screen_height
+            vel_y /= PLAYER_MAX_VEL_Y
+            
+        return np.concatenate((distances, [pos_y, vel_y]), axis=-1)
 
     def update_state(self, action: Union[Actions, int], normalize=True) -> bool:
         """Given an action taken by the player, updates the game's state.

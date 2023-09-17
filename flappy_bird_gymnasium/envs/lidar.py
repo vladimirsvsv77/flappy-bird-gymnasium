@@ -16,7 +16,7 @@ class LIDAR:
     def __init__(self, max_distance1, max_distance2):
         self._max_distance1 = max_distance1
         self._max_distance2 = max_distance2
-        self.collisions = np.zeros((181, 2))
+        self.collisions = np.zeros((180, 2))
 
     def draw(self, surface, player_x, player_y):
         for i in range(self.collisions.shape[0]):
@@ -44,7 +44,7 @@ class LIDAR:
         ground,
         normalize,
     ):
-        result = np.empty([181])
+        result = np.empty([180])
 
         # LIDAR position on torso
         offset_x = player_x + PLAYER_WIDTH
@@ -60,7 +60,7 @@ class LIDAR:
         lower_pipes = sorted(lower_pipes, key=lambda pipe: pipe["x"])
 
         # get collisions with precision 1 degree
-        for i, angle in enumerate(range(0, 181, 1)):
+        for i, angle in enumerate(range(0, 180, 1)):
             rad = (
                 np.radians(angle - 90 - visible_rot)
                 if angle < 180
