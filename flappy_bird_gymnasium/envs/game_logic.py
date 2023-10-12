@@ -67,8 +67,7 @@ class FlappyBirdLogic:
     Attributes:
         player_x (int): The player's x position.
         player_y (int): The player's y position.
-        base_x (int): The base/ground's x position.
-        base_y (int): The base/ground's y position.
+        ground (dict): The base/ground's x and y positions.
         score (int): Current score of the player.
         upper_pipes (List[Dict[str, int]): List with the upper pipes. Each pipe
             is represented by a dictionary containing two keys: "x" (the pipe's
@@ -210,7 +209,7 @@ class FlappyBirdLogic:
         vel_y = self.player_vel_y
         
         if normalize:
-            pos_y = pos_y / self._screen_height
+            pos_y = pos_y / (self.ground["y"] - PLAYER_HEIGHT)
             vel_y /= PLAYER_MAX_VEL_Y
             
         return np.concatenate((distances, [pos_y, vel_y]), axis=-1)
@@ -238,6 +237,7 @@ class FlappyBirdLogic:
         if self.check_crash():
             self.sound_cache = "hit"
             reward = -1  # reward for dying
+            self.player_vel_y = 0
             return self.get_observation(normalize=normalize), reward, False
 
         # check for score
@@ -274,6 +274,10 @@ class FlappyBirdLogic:
         self.player_y += min(
             self.player_vel_y, self.ground["y"] - self.player_y - PLAYER_HEIGHT
         )
+
+        # agent touch the top of the screen as punishment
+        if self.player_y < 0:
+            reward = -0.5
 
         # move pipes to left
         for up_pipe, low_pipe in zip(self.upper_pipes, self.lower_pipes):
