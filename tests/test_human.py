@@ -37,7 +37,9 @@ import flappy_bird_gymnasium
 
 
 def play():
-    env = gymnasium.make("FlappyBird-v0", audio_on=True, render_mode="human")
+    env = gymnasium.make(
+        "FlappyBird-v0", audio_on=True, render_mode="human", use_lidar=True
+    )
 
     score, steps = 0, 0
     video_buffer = []
