@@ -33,6 +33,7 @@ import flappy_bird_gymnasium
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
+import pandas as pd
 
 
 def play():
@@ -74,15 +75,25 @@ def play():
     x = np.linspace((np.pi / 2), -(np.pi / 2), 180)
     y = np.array(video_buffer)[:, :180]
     (line,) = ax.plot(x, y[0], "-")  # ax.scatter(x, y[0, :180])
-    ax.set_ylim([-1, 1])
+    ax.set_ylim([0, 1])
     ax.set_title("LIDAR scan", fontdict={"fontweight": "bold"})
 
     x2 = np.arange(steps)
     y2 = np.array(video_buffer)[:, -2]
+    y3 = np.array(video_buffer)[:, -1]
     (line2,) = ax2.plot(x2[0], y2[0], "-")
+    (line3,) = ax2.plot(x2[0], y3[0], "-")
     ax2.set_xlim([0, steps])
     ax2.set_ylim([-1, 1])
     ax2.set_title("Relief", fontdict={"fontweight": "bold"})
+
+    # save to log file
+    df = pd.DataFrame({
+        "Time": x2,
+        "Position": y2,
+        "Velocity": y3,
+    })
+    df.to_csv("log.csv", index=False)
 
     def animate(i):
         # RADAR
@@ -91,7 +102,9 @@ def play():
         # RELIEF
         line2.set_xdata(x2[:i])
         line2.set_ydata(y2[:i])
-        return (line, line2)
+        line3.set_xdata(x2[:i])
+        line3.set_ydata(y3[:i])
+        return (line, line2, line3)
 
     anim = animation.FuncAnimation(
         fig, animate, repeat=True, frames=steps, interval=150

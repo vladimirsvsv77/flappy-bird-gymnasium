@@ -13,9 +13,8 @@ from flappy_bird_gymnasium.envs.constants import (
 
 
 class LIDAR:
-    def __init__(self, max_distance1, max_distance2):
-        self._max_distance1 = max_distance1
-        self._max_distance2 = max_distance2
+    def __init__(self, max_distance):
+        self._max_distance = max_distance
         self.collisions = np.zeros((180, 2))
 
     def draw(self, surface, player_x, player_y):
@@ -61,21 +60,9 @@ class LIDAR:
 
         # get collisions with precision 1 degree
         for i, angle in enumerate(range(0, 180, 1)):
-            rad = (
-                np.radians(angle - 90 - visible_rot)
-                if angle < 180
-                else np.radians(angle - 90)
-            )
-            x = (
-                self._max_distance1 * np.cos(rad) + offset_x
-                if angle < 180
-                else self._max_distance2 * np.cos(rad) + offset_x
-            )
-            y = (
-                self._max_distance1 * np.sin(rad) + offset_y
-                if angle < 180
-                else self._max_distance2 * np.sin(rad) + offset_y
-            )
+            rad = np.radians(angle - 90 - visible_rot)
+            x = self._max_distance * np.cos(rad) + offset_x
+            y = self._max_distance * np.sin(rad) + offset_y
             line = (offset_x, offset_y, x, y)
             self.collisions[i] = (x, y)
 
@@ -116,10 +103,6 @@ class LIDAR:
                 + (offset_y - self.collisions[i][1]) ** 2
             )
             if normalize:
-                result[i] = (
-                    ((result[i] * 2) / self._max_distance1) - 1
-                    if angle < 180
-                    else ((result[i] * 2) / self._max_distance2) - 1
-                )
+                result[i] = result[i] / self._max_distance
 
         return result

@@ -108,26 +108,26 @@ class FlappyBirdLogic:
 
         # List of upper pipes:
         self.upper_pipes = [
-            {"x": self._screen_width + 200, "y": new_pipe1[0]["y"]},
+            {"x": self._screen_width, "y": new_pipe1[0]["y"]},
             {
-                "x": self._screen_width + 200 + (self._screen_width / 2),
+                "x": self._screen_width + (self._screen_width / 2),
                 "y": new_pipe2[0]["y"],
             },
             {
-                "x": self._screen_width + 200 + self._screen_width,
+                "x": self._screen_width + self._screen_width,
                 "y": new_pipe3[0]["y"],
             },
         ]
 
         # List of lower pipes:
         self.lower_pipes = [
-            {"x": self._screen_width + 200, "y": new_pipe1[1]["y"]},
+            {"x": self._screen_width, "y": new_pipe1[1]["y"]},
             {
-                "x": self._screen_width + 200 + (self._screen_width / 2),
+                "x": self._screen_width + (self._screen_width / 2),
                 "y": new_pipe2[1]["y"],
             },
             {
-                "x": self._screen_width + 200 + self._screen_width,
+                "x": self._screen_width + self._screen_width,
                 "y": new_pipe3[1]["y"],
             },
         ]
@@ -144,7 +144,7 @@ class FlappyBirdLogic:
         self._player_idx_gen = cycle([0, 1, 2, 1])
         self._loop_iter = 0
 
-        self.lidar = LIDAR(LIDAR_MAX_DISTANCE, self._screen_height)
+        self.lidar = LIDAR(LIDAR_MAX_DISTANCE)
 
     class Actions(IntEnum):
         """Possible actions for the player to take."""
@@ -225,6 +225,7 @@ class FlappyBirdLogic:
             `True` if the player is alive and `False` otherwise.
         """
         reward = 0.1  # reward for staying alive
+        terminal = False
 
         self.sound_cache = None
         if action == FlappyBirdLogic.Actions.FLAP:
@@ -237,8 +238,8 @@ class FlappyBirdLogic:
         if self.check_crash():
             self.sound_cache = "hit"
             reward = -1  # reward for dying
+            terminal = True
             self.player_vel_y = 0
-            return self.get_observation(normalize=normalize), reward, False
 
         # check for score
         player_mid_pos = self.player_x + PLAYER_WIDTH / 2
@@ -292,4 +293,4 @@ class FlappyBirdLogic:
                 low_pipe["x"] = new_low_pipe["x"]
                 low_pipe["y"] = new_low_pipe["y"]
 
-        return self.get_observation(normalize=normalize), reward, True
+        return self.get_observation(normalize=normalize), reward, terminal

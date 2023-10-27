@@ -82,6 +82,7 @@ class FlappyBirdEnv(gymnasium.Env):
         self.observation_space = gymnasium.spaces.Box(
             -np.inf, np.inf, shape=(182,), dtype=np.float64
         )
+        self._fps_clock = pygame.time.Clock()
         self._screen_size = screen_size
         self._normalize_obs = normalize_obs
         self._pipe_gap = pipe_gap
@@ -127,15 +128,13 @@ class FlappyBirdEnv(gymnasium.Env):
                   otherwise)
                 * an info dictionary
         """
-        obs, reward, alive = self._game.update_state(action, self._normalize_obs)
-
-        done = not alive
+        obs, reward, terminal = self._game.update_state(action, self._normalize_obs)
         info = {"score": self._game.score}
 
         if self.render_mode == "human":
             self.render()
 
-        return obs, reward, done, False, info
+        return obs, reward, terminal, False, info
 
     def reset(self, seed=None, options=None):
         """Resets the environment (starts a new game)."""
@@ -174,7 +173,7 @@ class FlappyBirdEnv(gymnasium.Env):
                 self._renderer.make_display()
 
             self._renderer.update_display()
-            time.sleep(1 / self.metadata["render_fps"])
+            self._fps_clock.tick(self.metadata["render_fps"])
 
     def close(self):
         """Closes the environment."""
