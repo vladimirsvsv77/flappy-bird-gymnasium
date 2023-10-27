@@ -35,10 +35,7 @@ from typing import Optional, Tuple
 import pygame
 
 from flappy_bird_gymnasium.envs import utils
-from flappy_bird_gymnasium.envs.constants import (
-    FILL_BACKGROUND_COLOR,
-    PLAYER_ROT_THR,
-)
+from flappy_bird_gymnasium.envs.constants import FILL_BACKGROUND_COLOR, PLAYER_ROT_THR
 
 
 class FlappyBirdRenderer:

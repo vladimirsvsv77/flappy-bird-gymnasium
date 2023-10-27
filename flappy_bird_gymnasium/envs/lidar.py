@@ -6,8 +6,8 @@ from flappy_bird_gymnasium.envs.constants import (
     BASE_WIDTH,
     PIPE_HEIGHT,
     PIPE_WIDTH,
-    PLAYER_ROT_THR,
     PLAYER_HEIGHT,
+    PLAYER_ROT_THR,
     PLAYER_WIDTH,
 )
 

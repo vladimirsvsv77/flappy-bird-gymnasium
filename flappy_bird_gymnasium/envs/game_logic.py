@@ -34,8 +34,8 @@ from enum import IntEnum
 from itertools import cycle
 from typing import Dict, Tuple, Union
 
-import pygame
 import numpy as np
+import pygame
 
 from flappy_bird_gymnasium.envs.constants import (
     BACKGROUND_WIDTH,
@@ -77,8 +77,6 @@ class FlappyBirdLogic:
             x position) and "y" (the pipe's y position).
         player_vel_y (int): The player's vertical velocity.
         player_rot (int): The player's rotation angle.
-        last_action (Optional[FlappyBirdLogic.Actions]): The last action taken
-            by the player. If `None`, the player hasn't taken any action yet.
         sound_cache (Optional[str]): Stores the name of the next sound to be
             played. If `None`, then no sound should be played.
         player_idx (int): Current index of the bird's animation cycle.
@@ -136,9 +134,7 @@ class FlappyBirdLogic:
         self.player_vel_y = -9  # player"s velocity along Y
         self.player_rot = 45  # player"s rotation
 
-        self.last_action = None
         self.sound_cache = None
-
         self._player_flapped = False
         self.player_idx = 0
         self._player_idx_gen = cycle([0, 1, 2, 1])
@@ -207,11 +203,11 @@ class FlappyBirdLogic:
 
         pos_y = self.player_y
         vel_y = self.player_vel_y
-        
+
         if normalize:
             pos_y = pos_y / (self.ground["y"] - PLAYER_HEIGHT)
             vel_y /= PLAYER_MAX_VEL_Y
-            
+
         return np.concatenate((distances, [pos_y, vel_y]), axis=-1)
 
     def update_state(self, action: Union[Actions, int], normalize=True) -> bool:
@@ -233,13 +229,6 @@ class FlappyBirdLogic:
                 self.player_vel_y = PLAYER_FLAP_ACC
                 self._player_flapped = True
                 self.sound_cache = "wing"
-
-        self.last_action = action
-        if self.check_crash():
-            self.sound_cache = "hit"
-            reward = -1  # reward for dying
-            terminal = True
-            self.player_vel_y = 0
 
         # check for score
         player_mid_pos = self.player_x + PLAYER_WIDTH / 2
@@ -292,5 +281,12 @@ class FlappyBirdLogic:
                 up_pipe["y"] = new_up_pipe["y"]
                 low_pipe["x"] = new_low_pipe["x"]
                 low_pipe["y"] = new_low_pipe["y"]
+
+        # check for crash
+        if self.check_crash():
+            self.sound_cache = "hit"
+            reward = -1  # reward for dying
+            terminal = True
+            self.player_vel_y = 0
 
         return self.get_observation(normalize=normalize), reward, terminal

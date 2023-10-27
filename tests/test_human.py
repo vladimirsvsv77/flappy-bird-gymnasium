@@ -27,13 +27,13 @@ human player.
 """
 
 import gymnasium
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import pygame
 
 import flappy_bird_gymnasium
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-import numpy as np
-import pandas as pd
 
 
 def play():
@@ -88,11 +88,13 @@ def play():
     ax2.set_title("Relief", fontdict={"fontweight": "bold"})
 
     # save to log file
-    df = pd.DataFrame({
-        "Time": x2,
-        "Position": y2,
-        "Velocity": y3,
-    })
+    df = pd.DataFrame(
+        {
+            "Time": x2,
+            "Position": y2,
+            "Velocity": y3,
+        }
+    )
     df.to_csv("log.csv", index=False)
 
     def animate(i):
