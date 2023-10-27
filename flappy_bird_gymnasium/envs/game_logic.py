@@ -150,9 +150,9 @@ class FlappyBirdLogic:
     def _get_random_pipe(self) -> Dict[str, int]:
         """Returns a randomly generated pipe."""
         # y of gap between upper and lower pipe
-        gap_y = self._np_random.integers(
-            0, int(self.ground["y"] * 0.6 - self._pipe_gap_size)
-        )
+        gapYs = [20, 30, 40, 50, 60, 70, 80, 90]
+        index = self._np_random.integers(0, len(gapYs))
+        gap_y = gapYs[index]
         gap_y += int(self.ground["y"] * 0.2)
 
         pipe_x = self._screen_width + PIPE_WIDTH + (self._screen_width * 0.2)
