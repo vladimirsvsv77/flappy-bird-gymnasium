@@ -83,7 +83,11 @@ class FlappyBirdLogic:
     """
 
     def __init__(
-        self, np_random, screen_size: Tuple[int, int], pipe_gap_size: int = 100
+        self,
+        np_random,
+        screen_size: Tuple[int, int],
+        pipe_gap_size: int = 100,
+        use_lidar=True,
     ) -> None:
         self._screen_width = screen_size[0]
         self._screen_height = screen_size[1]
@@ -140,7 +144,11 @@ class FlappyBirdLogic:
         self._player_idx_gen = cycle([0, 1, 2, 1])
         self._loop_iter = 0
 
-        self.lidar = LIDAR(LIDAR_MAX_DISTANCE)
+        if use_lidar:
+            self._lidar = LIDAR(LIDAR_MAX_DISTANCE)
+            self._observation = self.get_observation_lidar
+        else:
+            self._observation = self._get_observation_features
 
     class Actions(IntEnum):
         """Possible actions for the player to take."""
@@ -189,7 +197,53 @@ class FlappyBirdLogic:
 
         return False
 
-    def get_observation(self, normalize=True):
+    def _get_observation_features(self, normalize: bool = True) -> np.ndarray:
+        pipes = []
+        for up_pipe, low_pipe in zip(self._game.upper_pipes, self._game.lower_pipes):
+            # the pipe is behind the screen?
+            if low_pipe["x"] > self._screen_size[0]:
+                pipes.append((self._screen_size[0], 0, self._screen_size[1]))
+            else:
+                pipes.append(
+                    (low_pipe["x"], (up_pipe["y"] + PIPE_HEIGHT), low_pipe["y"])
+                )
+
+        pipes = sorted(pipes, key=lambda x: x["x"])
+        pos_y = self._game.player_y
+        vel_y = self._game.player_vel_y
+        rot = self._game.player_rot
+
+        if normalize:
+            pipes = [
+                (
+                    h / self._screen_size[0],
+                    v1 / self._screen_size[1],
+                    v2 / self._screen_size[1],
+                )
+                for h, v1, v2 in pipes
+            ]
+            pos_y = pos_y / self._screen_size[1]
+            vel_y /= PLAYER_MAX_VEL_Y
+            rot /= 90
+
+        return np.array(
+            [
+                pipes[0][0],  # the last pipe's horizontal position
+                pipes[0][1],  # the last top pipe's vertical position
+                pipes[0][2],  # the last bottom pipe's vertical position
+                pipes[1][0],  # the next pipe's horizontal position
+                pipes[1][1],  # the next top pipe's vertical position
+                pipes[1][2],  # the next bottom pipe's vertical position
+                pipes[2][0],  # the next next pipe's horizontal position
+                pipes[2][1],  # the next next top pipe's vertical position
+                pipes[2][2],  # the next next bottom pipe's vertical position
+                pos_y,  # player's vertical position
+                vel_y,  # player's vertical velocity
+                rot,  # player's rotation
+            ]
+        )
+
+    def get_observation_lidar(self, normalize=True):
         # obstacles
         distances = self.lidar.scan(
             self.player_x,
@@ -200,15 +254,6 @@ class FlappyBirdLogic:
             self.ground,
             normalize,
         )
-
-        # pos_y = self.player_y
-        # vel_y = self.player_vel_y
-
-        # if normalize:
-        #     pos_y = pos_y / (self.ground["y"] - PLAYER_HEIGHT)
-        #     vel_y /= PLAYER_MAX_VEL_Y
-
-        # return np.concatenate((distances, [pos_y, vel_y]), axis=-1)
         return distances
 
     def update_state(self, action: Union[Actions, int], normalize=True) -> bool:
@@ -290,4 +335,4 @@ class FlappyBirdLogic:
             terminal = True
             self.player_vel_y = 0
 
-        return self.get_observation(normalize=normalize), reward, terminal
+        return self._observation(normalize=normalize), reward, terminal
