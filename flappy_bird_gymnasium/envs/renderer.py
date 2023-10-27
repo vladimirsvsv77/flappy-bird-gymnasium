@@ -115,7 +115,7 @@ class FlappyBirdRenderer:
             )
             x_offset += self.images["numbers"][digit].get_width()
 
-    def draw_surface(self, show_score: bool = True) -> None:
+    def draw_surface(self, show_score: bool = True, show_rays: bool = True) -> None:
         """Re-draws the renderer's surface.
 
         This method updates the renderer's surface by re-drawing it according to
@@ -144,7 +144,8 @@ class FlappyBirdRenderer:
         )
 
         # LIDAR
-        self.game.lidar.draw(self.surface, self.game.player_x, self.game.player_y)
+        if show_rays:
+            self.game.lidar.draw(self.surface, self.game.player_x, self.game.player_y)
 
         # Score
         # (must be drawn before the player, so the player overlaps it)
