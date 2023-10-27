@@ -72,6 +72,7 @@ class FlappyBirdEnv(gymnasium.Env):
         screen_size: Tuple[int, int] = (288, 512),
         audio_on: bool = False,
         normalize_obs: bool = True,
+        use_lidar: bool = False,
         pipe_gap: int = 100,
         bird_color: str = "yellow",
         pipe_color: str = "green",
@@ -87,6 +88,7 @@ class FlappyBirdEnv(gymnasium.Env):
         self._normalize_obs = normalize_obs
         self._pipe_gap = pipe_gap
         self._audio_on = audio_on
+        self._use_lidar = use_lidar
 
         self._game = None
         self._renderer = None
@@ -144,6 +146,7 @@ class FlappyBirdEnv(gymnasium.Env):
             np_random=self.np_random,
             screen_size=self._screen_size,
             pipe_gap_size=self._pipe_gap,
+            use_lidar=self._use_lidar,
         )
         if self._renderer is not None:
             self._renderer.game = self._game
