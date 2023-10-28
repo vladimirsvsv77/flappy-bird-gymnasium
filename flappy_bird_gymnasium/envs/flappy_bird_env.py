@@ -171,7 +171,7 @@ class FlappyBirdEnv(gymnasium.Env):
                 pygame.surfarray.array3d(self._renderer.surface), axes=(1, 0, 2)
             )
         else:
-            self._renderer.draw_surface(show_score=True, show_rays=True)
+            self._renderer.draw_surface(show_score=True, show_rays=self._use_lidar)
             if self._renderer.display is None:
                 self._renderer.make_display()
 

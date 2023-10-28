@@ -145,10 +145,10 @@ class FlappyBirdLogic:
         self._loop_iter = 0
 
         if use_lidar:
-            self._lidar = LIDAR(LIDAR_MAX_DISTANCE)
-            self._observation = self.get_observation_lidar
+            self.lidar = LIDAR(LIDAR_MAX_DISTANCE)
+            self.get_observation = self.get_observation_lidar
         else:
-            self._observation = self._get_observation_features
+            self.get_observation = self._get_observation_features
 
     class Actions(IntEnum):
         """Possible actions for the player to take."""
@@ -335,4 +335,4 @@ class FlappyBirdLogic:
             terminal = True
             self.player_vel_y = 0
 
-        return self._observation(normalize=normalize), reward, terminal
+        return self.get_observation(normalize=normalize), reward, terminal
