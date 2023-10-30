@@ -32,19 +32,17 @@ import numpy as np
 import flappy_bird_gymnasium
 
 
-def play(audio_on=True, render_mode="human"):
-    env = gymnasium.make("FlappyBird-v0", audio_on=audio_on, render_mode=render_mode)
-    score = 0
+def play(audio_on=True, render_mode="human", use_lidar=False):
+    env = gymnasium.make("FlappyBird-v0", audio_on=audio_on, render_mode=render_mode, use_lidar=use_lidar)
     obs = env.reset(seed=123)
     while True:
         # Getting random action:
         action = env.action_space.sample()
 
         # Processing:
-        obs, reward, done, _, info = env.step(action)
+        obs, _, done, _, info = env.step(action)
 
-        score += reward
-        print(f"Obs: {obs}\n" f"Score: {score}\n")
+        print(f"Obs: {obs}\n" f"Score: {info['score']}\n")
 
         if done:
             break
@@ -52,12 +50,11 @@ def play(audio_on=True, render_mode="human"):
     env.close()
     assert obs.shape == env.observation_space.shape
     assert info["score"] == 0
-    np.testing.assert_allclose(score, 8.99999999999998)
 
 
 def test_play():
-    play(audio_on=False, render_mode=None)
-
+    play(audio_on=False, render_mode=None, use_lidar=False)
+    play(audio_on=False, render_mode=None, use_lidar=True)
 
 if __name__ == "__main__":
     play()

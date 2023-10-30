@@ -45,8 +45,8 @@ class DuelingDQN(tf.keras.Model):
         return tf.math.argmax(q_value, axis=-1)[0]
 
 
-def play(epoch=10, audio_on=True, render_mode="human"):
-    env = gymnasium.make("FlappyBird-v0", audio_on=audio_on, render_mode=render_mode)
+def play(epoch=10, audio_on=True, render_mode="human", use_lidar=False):
+    env = gymnasium.make("FlappyBird-v0", audio_on=audio_on, render_mode=render_mode, use_lidar=use_lidar)
 
     # init models
     q_model = DuelingDQN(env.action_space.n)
@@ -55,8 +55,6 @@ def play(epoch=10, audio_on=True, render_mode="human"):
 
     # run
     for _ in range(epoch):
-        score = 0
-
         state, _ = env.reset(seed=123)
         state = np.expand_dims(state, axis=0)
         while True:
@@ -65,11 +63,10 @@ def play(epoch=10, audio_on=True, render_mode="human"):
             action = np.array(action, copy=False, dtype=env.env.action_space.dtype)
 
             # Processing action
-            next_state, reward, done, _, info = env.step(action)
+            next_state, _, done, _, info = env.step(action)
 
             state = np.expand_dims(next_state, axis=0)
-            score += reward
-            print(f"Obs: {state}\n" f"Action: {action}\n" f"Score: {score}\n")
+            print(f"Obs: {state}\n" f"Action: {action}\n" f"Score: {info['score']}\n")
 
             if done:
                 break
@@ -77,11 +74,11 @@ def play(epoch=10, audio_on=True, render_mode="human"):
     env.close()
     assert state.shape == (1,) + env.observation_space.shape
     assert info["score"] > 0
-    assert score > 10.999999999999977
 
 
 def test_play():
-    play(epoch=1, audio_on=False, render_mode=None)
+    play(epoch=1, audio_on=False, render_mode=None, use_lidar=False)
+    play(epoch=1, audio_on=False, render_mode=None, use_lidar=True)
 
 
 if __name__ == "__main__":

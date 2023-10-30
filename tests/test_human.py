@@ -41,7 +41,7 @@ def play():
         "FlappyBird-v0", audio_on=True, render_mode="human", use_lidar=True
     )
 
-    score, steps = 0, 0
+    steps = 0
     video_buffer = []
 
     obs = env.reset()
@@ -57,13 +57,12 @@ def play():
                 action = 1
 
         # Processing:
-        obs, reward, done, _, info = env.step(action)
+        obs, _, done, _, info = env.step(action)
         video_buffer.append(obs)
 
-        score += reward
         steps += 1
         print(
-            f"Obs: {obs}\n" f"Action: {action}\n" f"Score: {score}\n Steps: {steps}\n"
+            f"Obs: {obs}\n" f"Action: {action}\n" f"Score: {info['score']}\n Steps: {steps}\n"
         )
 
         if done:

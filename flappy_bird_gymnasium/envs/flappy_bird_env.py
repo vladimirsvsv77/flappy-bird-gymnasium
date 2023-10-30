@@ -80,9 +80,14 @@ class FlappyBirdEnv(gymnasium.Env):
         background: Optional[str] = "day",
     ) -> None:
         self.action_space = gymnasium.spaces.Discrete(2)
-        self.observation_space = gymnasium.spaces.Box(
-            -np.inf, np.inf, shape=(180,), dtype=np.float64
-        )
+        if use_lidar:
+            self.observation_space = gymnasium.spaces.Box(
+                -np.inf, np.inf, shape=(180,), dtype=np.float64
+            )
+        else:
+            self.observation_space = gymnasium.spaces.Box(
+                -np.inf, np.inf, shape=(12,), dtype=np.float64
+            )
         self._fps_clock = pygame.time.Clock()
         self._screen_size = screen_size
         self._normalize_obs = normalize_obs

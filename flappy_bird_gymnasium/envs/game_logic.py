@@ -199,30 +199,30 @@ class FlappyBirdLogic:
 
     def _get_observation_features(self, normalize: bool = True) -> np.ndarray:
         pipes = []
-        for up_pipe, low_pipe in zip(self._game.upper_pipes, self._game.lower_pipes):
+        for up_pipe, low_pipe in zip(self.upper_pipes, self.lower_pipes):
             # the pipe is behind the screen?
-            if low_pipe["x"] > self._screen_size[0]:
-                pipes.append((self._screen_size[0], 0, self._screen_size[1]))
+            if low_pipe["x"] > self._screen_width:
+                pipes.append((self._screen_width, 0, self._screen_height))
             else:
                 pipes.append(
                     (low_pipe["x"], (up_pipe["y"] + PIPE_HEIGHT), low_pipe["y"])
                 )
 
-        pipes = sorted(pipes, key=lambda x: x["x"])
-        pos_y = self._game.player_y
-        vel_y = self._game.player_vel_y
-        rot = self._game.player_rot
+        pipes = sorted(pipes, key=lambda x: x[0])
+        pos_y = self.player_y
+        vel_y = self.player_vel_y
+        rot = self.player_rot
 
         if normalize:
             pipes = [
                 (
-                    h / self._screen_size[0],
-                    v1 / self._screen_size[1],
-                    v2 / self._screen_size[1],
+                    h / self._screen_width,
+                    v1 / self._screen_height,
+                    v2 / self._screen_height,
                 )
                 for h, v1, v2 in pipes
             ]
-            pos_y = pos_y / self._screen_size[1]
+            pos_y = pos_y / self._screen_height
             vel_y /= PLAYER_MAX_VEL_Y
             rot /= 90
 
