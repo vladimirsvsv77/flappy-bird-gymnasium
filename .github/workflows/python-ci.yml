@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python3 -m pip install black isort flake8 pytest Pillow tensorflow
+          python3 -m pip install black isort flake8 pytest Pillow tensorflow matplotlib
           python3 -m pip install -e .
      
       - name: Check codestyle
