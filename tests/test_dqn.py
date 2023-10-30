@@ -51,9 +51,13 @@ def play(epoch=10, audio_on=True, render_mode="human", use_lidar=False):
     )
 
     # init models
-    q_model = DuelingDQN(env.action_space.n)
-    q_model.build((None, env.observation_space.shape[0]))
-    q_model.load_weights(MODEL_PATH + "/model.h5")
+    if use_lidar:
+        q_model.build((None, *env.observation_space.shape))
+        q_model.load_weights(MODEL_PATH + "/model_lidar.h5")
+    else:
+        q_model = DuelingDQN(env.action_space.n)
+        q_model.build((None, *env.observation_space.shape))
+        q_model.load_weights(MODEL_PATH + "/model.h5")
 
     # run
     for _ in range(epoch):
@@ -80,7 +84,7 @@ def play(epoch=10, audio_on=True, render_mode="human", use_lidar=False):
 
 def test_play():
     play(epoch=1, audio_on=False, render_mode=None, use_lidar=False)
-    play(epoch=1, audio_on=False, render_mode=None, use_lidar=True)
+    # play(epoch=1, audio_on=False, render_mode=None, use_lidar=True)
 
 
 if __name__ == "__main__":
