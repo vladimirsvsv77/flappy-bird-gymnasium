@@ -62,7 +62,9 @@ def play():
 
         steps += 1
         print(
-            f"Obs: {obs}\n" f"Action: {action}\n" f"Score: {info['score']}\n Steps: {steps}\n"
+            f"Obs: {obs}\n"
+            f"Action: {action}\n"
+            f"Score: {info['score']}\n Steps: {steps}\n"
         )
 
         if done:

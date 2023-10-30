@@ -46,7 +46,9 @@ class DuelingDQN(tf.keras.Model):
 
 
 def play(epoch=10, audio_on=True, render_mode="human", use_lidar=False):
-    env = gymnasium.make("FlappyBird-v0", audio_on=audio_on, render_mode=render_mode, use_lidar=use_lidar)
+    env = gymnasium.make(
+        "FlappyBird-v0", audio_on=audio_on, render_mode=render_mode, use_lidar=use_lidar
+    )
 
     # init models
     q_model = DuelingDQN(env.action_space.n)
