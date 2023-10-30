@@ -30,7 +30,6 @@ import gymnasium
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import pygame
 
 import flappy_bird_gymnasium
