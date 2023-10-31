@@ -10,11 +10,11 @@ PLAYER_VEL_ROT = 3  # angular speed
 PLAYER_FLAP_ACC = -9  # players speed on flapping
 ################################################################################
 
-LIDAR_MAX_DISTANCE = 288
-
 ################################## Dimensions ##################################
 PLAYER_WIDTH = 34
 PLAYER_HEIGHT = 24
+
+LIDAR_MAX_DISTANCE = int(288 * 0.8) - PLAYER_WIDTH 
 
 PIPE_WIDTH = 52
 PIPE_HEIGHT = 320
