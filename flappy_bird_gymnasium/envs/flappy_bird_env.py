@@ -110,13 +110,18 @@ class FlappyBirdEnv(gymnasium.Env):
 
         self.action_space = gymnasium.spaces.Discrete(2)
         if use_lidar:
-            self.observation_space = gymnasium.spaces.Box(
-                -np.inf, np.inf, shape=(180,), dtype=np.float64
-            )
-        else:
-            if use_lidar:
+            if normalize_obs:
                 self.observation_space = gymnasium.spaces.Box(
-                    0, np.inf, shape=(12,), dtype=np.float64
+                    0.0, 1.0, shape=(180,), dtype=np.float64
+                )
+            else:
+                self.observation_space = gymnasium.spaces.Box(
+                    0.0, np.inf, shape=(180,), dtype=np.float64
+                )
+        else:
+            if normalize_obs:
+                self.observation_space = gymnasium.spaces.Box(
+                    -1.0, 1.0, shape=(12,), dtype=np.float64
                 )
             else:
                 self.observation_space = gymnasium.spaces.Box(

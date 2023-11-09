@@ -14,11 +14,18 @@ class FrameStack(gymnasium.Wrapper):
         --------
         baselines.common.atari_wrappers.LazyFrames
         """
-        super(FrameStack, self).__init__(env)
+        super().__init__(env)
 
         self.k = k
         self.frames = deque([], maxlen=k)
-        self.observation_space._shape = (k,) + env.observation_space.shape
+
+        low = np.repeat(self.observation_space.low[np.newaxis, ...], k, axis=0)
+        high = np.repeat(self.observation_space.high[np.newaxis, ...], k, axis=0)
+        self.observation_space = gymnasium.spaces.Box(
+            low=low,
+            high=high,
+            dtype=self.observation_space.dtype,
+        )
 
     def reset(self, **kwargs):
         ob, info = self.env.reset(**kwargs)
