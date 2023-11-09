@@ -50,6 +50,11 @@ def _get_args():
         choices=["human", "random", "dqn"],
         help="The execution mode for the game.",
     )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="If set, the game will be executed without rendering it.",
+    )
 
     return parser.parse_args()
 
@@ -60,8 +65,12 @@ def main():
     if args.mode == "human":
         human_agent_env()
     elif args.mode == "random":
-        random_agent_env()
+        random_agent_env(
+            audio_on=(not args.quiet), render_mode="human" if not args.quiet else None
+        )
     elif args.mode == "dqn":
-        dqn_agent_env()
+        dqn_agent_env(
+            audio_on=(not args.quiet), render_mode="human" if not args.quiet else None
+        )
     else:
         print("Invalid mode!")

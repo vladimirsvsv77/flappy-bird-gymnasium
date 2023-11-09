@@ -35,9 +35,9 @@ import pygame
 import flappy_bird_gymnasium
 
 
-def play():
+def play(use_lidar=True):
     env = gymnasium.make(
-        "FlappyBird-v0", audio_on=True, render_mode="human", use_lidar=True
+        "FlappyBird-v0", audio_on=True, render_mode="human", use_lidar=use_lidar
     )
 
     steps = 0
@@ -69,25 +69,26 @@ def play():
         if done:
             break
 
-    fig = plt.figure(figsize=(6, 6))
-    ax = fig.add_subplot(111, projection="polar")
-    x = np.linspace((np.pi / 2), -(np.pi / 2), 180)
-    y = np.array(video_buffer)[:, :180]
-    (line,) = ax.plot(x, y[0], "-")
-    ax.set_ylim([0, 1])
-    ax.set_title("LIDAR scan", fontdict={"fontweight": "bold"})
-
-    def animate(i):
-        # RADAR
-        line.set_ydata(y[i])
-        return (line,)
-
-    anim = animation.FuncAnimation(
-        fig, animate, repeat=True, frames=steps, interval=150
-    )
-    plt.show()
-
     env.close()
+
+    if use_lidar:
+        fig = plt.figure(figsize=(6, 6))
+        ax = fig.add_subplot(111, projection="polar")
+        x = np.linspace((np.pi / 2), -(np.pi / 2), 180)
+        y = np.array(video_buffer)
+        (line,) = ax.plot(x, y[0], "-")
+        ax.set_ylim([0, 1])
+        ax.set_title("LIDAR scan", fontdict={"fontweight": "bold"})
+
+        def animate(i):
+            # RADAR
+            line.set_ydata(y[i])
+            return (line,)
+
+        anim = animation.FuncAnimation(
+            fig, animate, repeat=True, frames=steps, interval=150
+        )
+        anim.save("video.gif")
 
 
 if __name__ == "__main__":

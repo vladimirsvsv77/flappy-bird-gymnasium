@@ -1,81 +1,76 @@
 import gymnasium
+import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
 
 import flappy_bird_gymnasium
 from flappy_bird_gymnasium.envs.utils import MODEL_PATH
 
+from .dueling import DuelingDQN
+from .dueling_v2 import DuelingDQN as DuelingDQN_v2
+from .framestack import FrameStack
 
-class DuelingDQN(tf.keras.Model):
-    def __init__(self, action_space):
-        super(DuelingDQN, self).__init__()
-
-        self.fc1 = tf.keras.layers.Dense(
-            512,
-            activation="elu",
-            kernel_initializer=tf.keras.initializers.Orthogonal(tf.sqrt(2.0)),
-        )
-        self.fc2 = tf.keras.layers.Dense(
-            256,
-            activation="elu",
-            kernel_initializer=tf.keras.initializers.Orthogonal(tf.sqrt(2.0)),
-        )
-        self.V = tf.keras.layers.Dense(
-            1,
-            activation=None,
-            kernel_initializer=tf.keras.initializers.Orthogonal(0.01),
-        )
-        self.A = tf.keras.layers.Dense(
-            action_space,
-            activation=None,
-            kernel_initializer=tf.keras.initializers.Orthogonal(0.01),
-        )
-
-    def call(self, inputs, training=None):
-        x = self.fc1(inputs, training=training)
-        x = self.fc2(x, training=training)
-        V = self.V(x, training=training)
-        A = self.A(x, training=training)
-        adv_mean = tf.reduce_mean(A, axis=-1, keepdims=True)
-        return V + (A - adv_mean)
-
-    def get_action(self, state):
-        q_value = self(state)
-        print("Q value: ", q_value, tf.math.argmax(q_value, axis=-1))
-        return tf.math.argmax(q_value, axis=-1)[0]
+plt.ion()
 
 
-def play(epoch=10, audio_on=True, render_mode="human", use_lidar=False):
+def play(epoch=1000, audio_on=True, render_mode="human", use_lidar=True):
     env = gymnasium.make(
         "FlappyBird-v0", audio_on=audio_on, render_mode=render_mode, use_lidar=use_lidar
     )
 
     # init models
     if use_lidar:
+        env = FrameStack(env, 12)
+        q_model = DuelingDQN_v2(env.action_space.n, 2, 128, 4, 6)
         q_model.build((None, *env.observation_space.shape))
-        q_model.load_weights(MODEL_PATH + "/model_lidar.h5")
+        q_model.load_weights(MODEL_PATH + "/LIDAR_t-1_12steps.h5")
     else:
         q_model = DuelingDQN(env.action_space.n)
         q_model.build((None, *env.observation_space.shape))
         q_model.load_weights(MODEL_PATH + "/model.h5")
 
+    q_model.summary()
+
+    if render_mode == "human" and use_lidar:
+        similarity_scores = np.dot(
+            q_model.pos_embs.position[0], np.transpose(q_model.pos_embs.position[0])
+        ) / (
+            np.linalg.norm(q_model.pos_embs.position[0], axis=-1)
+            * np.linalg.norm(q_model.pos_embs.position[0], axis=-1)
+        )
+
+        plt.imshow(similarity_scores, cmap="inferno", interpolation="nearest")
+        plt.title("Positional Embedding")
+        plt.ylabel("Timestep")
+        plt.xlabel("Timestep")
+        plt.pause(10)
+
     # run
     for _ in range(epoch):
-        state, _ = env.reset(seed=123)
+        state, _ = env.reset()
         state = np.expand_dims(state, axis=0)
         while True:
             # Getting action
-            action = q_model.get_action(state)
+            action, attn_matrix = q_model.get_action(state)
             action = np.array(action, copy=False, dtype=env.env.action_space.dtype)
+
+            if render_mode == "human" and use_lidar:
+                # plotting the attention matrix
+                plt.imshow(attn_matrix[0, 0], cmap="inferno", interpolation="nearest")
+                plt.title("Attention head 0")
+                plt.ylabel("Timestep")
+                plt.xlabel("Timestep")
+                plt.pause(0.001)
 
             # Processing action
             next_state, _, done, _, info = env.step(action)
 
             state = np.expand_dims(next_state, axis=0)
-            print(f"Obs: {state}\n" f"Action: {action}\n" f"Score: {info['score']}\n")
+            # print(f"Obs: {state}\n" f"Action: {action}\n" f"Score: {info['score']}\n")
 
             if done:
                 break
+
+        print(f"Score: {info['score']}")
 
     env.close()
     assert state.shape == (1,) + env.observation_space.shape
@@ -84,7 +79,7 @@ def play(epoch=10, audio_on=True, render_mode="human", use_lidar=False):
 
 def test_play():
     play(epoch=1, audio_on=False, render_mode=None, use_lidar=False)
-    # play(epoch=1, audio_on=False, render_mode=None, use_lidar=True)
+    play(epoch=1, audio_on=False, render_mode=None, use_lidar=True)
 
 
 if __name__ == "__main__":

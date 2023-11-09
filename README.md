@@ -15,6 +15,10 @@ The "FlappyBird-v0" environment, yields simple numerical information about the g
 observations or RGB-arrays (images) representing the game's screen.
 
 ### `FlappyBird-v0`
+1. option
+* The LIDAR sensor 180 readings
+
+2. option
 * the last pipe's horizontal position
 * the last top pipe's vertical position
 * the last bottom pipe's vertical position
@@ -28,6 +32,7 @@ observations or RGB-arrays (images) representing the game's screen.
 * player's vertical velocity
 * player's rotation
 
+3. option
 * or RGB-array (image) representing the game's screen
 
 ## Action space
@@ -40,6 +45,7 @@ observations or RGB-arrays (images) representing the game's screen.
 * +0.1 - **every frame it stays alive**
 * +1.0 - **successfully passing a pipe**
 * -1.0 - **dying**
+* −0.5 - **touch the top of the screen**
 
 <br>
 

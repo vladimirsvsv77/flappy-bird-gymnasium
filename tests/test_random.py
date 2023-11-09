@@ -36,7 +36,7 @@ def play(audio_on=True, render_mode="human", use_lidar=False):
     env = gymnasium.make(
         "FlappyBird-v0", audio_on=audio_on, render_mode=render_mode, use_lidar=use_lidar
     )
-    obs = env.reset(seed=123)
+    obs = env.reset()
     while True:
         # Getting random action:
         action = env.action_space.sample()
