@@ -271,8 +271,6 @@ class FlappyBirdEnv(gymnasium.Env):
         if self.render_mode == "human":
             self.render()
 
-        print(f"Reward: {reward}")
-
         return (
             obs,
             reward,
@@ -452,8 +450,7 @@ class FlappyBirdEnv(gymnasium.Env):
             self._ground,
         )
 
-        thres = PLAYER_PRIVATE_ZONE - (PLAYER_WIDTH * 0.25) if self._normalize_obs else PLAYER_PRIVATE_ZONE
-        if np.any(distances < thres):
+        if np.any(distances < PLAYER_PRIVATE_ZONE):
             reward = -0.5
         else:
             reward = None
