@@ -53,6 +53,7 @@ from flappy_bird_gymnasium.envs.constants import (
     PLAYER_ROT_THR,
     PLAYER_VEL_ROT,
     PLAYER_WIDTH,
+    PLAYER_PRIVATE_ZONE,
 )
 from flappy_bird_gymnasium.envs.lidar import LIDAR
 
@@ -193,8 +194,11 @@ class FlappyBirdEnv(gymnasium.Env):
         Returns:
             `True` if the player is alive and `False` otherwise.
         """
-        reward = 0.1  # reward for staying alive
         terminal = False
+        obs, reward = self._get_observation()
+
+        if reward is None:
+            reward = 0.1  # reward for staying alive
 
         self._sound_cache = None
         if action == Actions.FLAP:
@@ -267,8 +271,10 @@ class FlappyBirdEnv(gymnasium.Env):
         if self.render_mode == "human":
             self.render()
 
+        print(f"Reward: {reward}")
+
         return (
-            self._get_observation(),
+            obs,
             reward,
             terminal,
             False,
@@ -322,7 +328,7 @@ class FlappyBirdEnv(gymnasium.Env):
         if self.render_mode == "human":
             self.render()
 
-        obs = self._get_observation()
+        obs, _ = self._get_observation()
         info = {"score": self._score}
         return obs, info
 
@@ -433,7 +439,7 @@ class FlappyBirdEnv(gymnasium.Env):
                 vel_y,  # player's vertical velocity
                 rot,  # player's rotation
             ]
-        )
+        ), None
 
     def _get_observation_lidar(self) -> np.ndarray:
         # obstacles
@@ -444,9 +450,18 @@ class FlappyBirdEnv(gymnasium.Env):
             self._upper_pipes,
             self._lower_pipes,
             self._ground,
-            self._normalize_obs,
         )
-        return distances
+
+        thres = PLAYER_PRIVATE_ZONE - (PLAYER_WIDTH * 0.25) if self._normalize_obs else PLAYER_PRIVATE_ZONE
+        if np.any(distances < thres):
+            reward = -0.5
+        else:
+            reward = None
+
+        if self._normalize_obs:
+            distances = distances / LIDAR_MAX_DISTANCE
+
+        return distances, reward
 
     def _make_display(self) -> None:
         """Initializes the pygame's display.
@@ -509,6 +524,15 @@ class FlappyBirdEnv(gymnasium.Env):
         # LIDAR
         if show_rays:
             self._lidar.draw(self._surface, self._player_x, self._player_y)
+            center_x = (self._player_x + (PLAYER_WIDTH / 2))
+            center_y = (self._player_y + (PLAYER_HEIGHT / 2))
+            pygame.draw.circle(
+                self._surface,
+                "blue",
+                (center_x, center_y),
+                PLAYER_PRIVATE_ZONE,
+                1,
+            )
 
         # Score
         # (must be drawn before the player, so the player overlaps it)

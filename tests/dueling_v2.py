@@ -5,7 +5,6 @@ from tensorflow.keras.layers import (
     Add,
     Dense,
     Dropout,
-    Flatten,
     GlobalAveragePooling1D,
     GlobalMaxPooling1D,
     Lambda,
@@ -117,8 +116,6 @@ class DuelingDQN(Model):
         self.flatten = Lambda(lambda x: x[:, -1])
         # self.flatten = GlobalMaxPooling1D()
         # self.flatten = GlobalAveragePooling1D()
-        # self.flatten = Flatten()
-        # self.drop_out = Dropout(0.05)
 
         # Output
         self.V = Dense(

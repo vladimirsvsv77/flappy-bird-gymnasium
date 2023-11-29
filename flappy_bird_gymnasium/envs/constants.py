@@ -13,6 +13,7 @@ PLAYER_FLAP_ACC = -9  # players speed on flapping
 ################################## Dimensions ##################################
 PLAYER_WIDTH = 34
 PLAYER_HEIGHT = 24
+PLAYER_PRIVATE_ZONE = (max(PLAYER_WIDTH, PLAYER_HEIGHT) + 30) / 2
 
 LIDAR_MAX_DISTANCE = int(288 * 0.8) - PLAYER_WIDTH
 

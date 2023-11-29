@@ -41,7 +41,6 @@ class LIDAR:
         upper_pipes,
         lower_pipes,
         ground,
-        normalize,
     ):
         result = np.empty([180])
 
@@ -102,7 +101,5 @@ class LIDAR:
                 (offset_x - self.collisions[i][0]) ** 2
                 + (offset_y - self.collisions[i][1]) ** 2
             )
-            if normalize:
-                result[i] = result[i] / self._max_distance
 
         return result
