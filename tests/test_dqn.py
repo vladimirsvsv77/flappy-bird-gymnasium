@@ -12,7 +12,7 @@ from .framestack import FrameStack
 plt.ion()
 
 
-def play(epoch=1000, audio_on=True, render_mode="human", use_lidar=True):
+def play(epoch=500, audio_on=True, render_mode="human", use_lidar=True):
     env = gymnasium.make(
         "FlappyBird-v0", audio_on=audio_on, render_mode=render_mode, use_lidar=use_lidar
     )
@@ -45,7 +45,7 @@ def play(epoch=1000, audio_on=True, render_mode="human", use_lidar=True):
         plt.pause(10)
 
     # run
-    for _ in range(epoch):
+    for t in range(epoch):
         state, _ = env.reset()
         state = np.expand_dims(state, axis=0)
         while True:
@@ -70,7 +70,7 @@ def play(epoch=1000, audio_on=True, render_mode="human", use_lidar=True):
             if done:
                 break
 
-        print(f"Score: {info['score']}")
+        print(f"Epoch: {t}, Score: {info['score']}")
 
     env.close()
     assert state.shape == (1,) + env.observation_space.shape
