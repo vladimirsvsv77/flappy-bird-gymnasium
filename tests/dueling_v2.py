@@ -113,9 +113,9 @@ class DuelingDQN(Model):
         ]
 
         # Reduce
-        self.flatten = Lambda(lambda x: x[:, -1])
+        # self.flatten = Lambda(lambda x: x[:, -1])
         # self.flatten = GlobalMaxPooling1D()
-        # self.flatten = GlobalAveragePooling1D()
+        self.flatten = GlobalAveragePooling1D()
 
         # Output
         self.V = Dense(

@@ -195,10 +195,7 @@ class FlappyBirdEnv(gymnasium.Env):
             `True` if the player is alive and `False` otherwise.
         """
         terminal = False
-        obs, reward = self._get_observation()
-
-        if reward is None:
-            reward = 0.1  # reward for staying alive
+        reward = None
 
         self._sound_cache = None
         if action == Actions.FLAP:
@@ -242,10 +239,6 @@ class FlappyBirdEnv(gymnasium.Env):
             self._player_vel_y, self._ground["y"] - self._player_y - PLAYER_HEIGHT
         )
 
-        # agent touch the top of the screen as punishment
-        if self._player_y < 0:
-            reward = -0.5
-
         # move pipes to left
         for up_pipe, low_pipe in zip(self._upper_pipes, self._lower_pipes):
             up_pipe["x"] += PIPE_VEL_X
@@ -259,6 +252,20 @@ class FlappyBirdEnv(gymnasium.Env):
                 low_pipe["x"] = new_low_pipe["x"]
                 low_pipe["y"] = new_low_pipe["y"]
 
+        if self.render_mode == "human":
+            self.render()
+
+        obs, reward_private_zone = self._get_observation()
+        if reward is None:
+            if reward_private_zone is not None:
+                reward = reward_private_zone
+            else:
+                reward = 0.1  # reward for staying alive
+
+        # agent touch the top of the screen as punishment
+        if self._player_y < 0:
+            reward = -0.5
+
         # check for crash
         if self._check_crash():
             self._sound_cache = "hit"
@@ -267,9 +274,6 @@ class FlappyBirdEnv(gymnasium.Env):
             self._player_vel_y = 0
 
         info = {"score": self._score}
-
-        if self.render_mode == "human":
-            self.render()
 
         return (
             obs,
@@ -541,7 +545,10 @@ class FlappyBirdEnv(gymnasium.Env):
             pygame.draw.circle(
                 shape_surf,
                 "blue",
-                (PLAYER_PRIVATE_ZONE + PLAYER_WIDTH, PLAYER_PRIVATE_ZONE + (PLAYER_HEIGHT / 2)),
+                (
+                    PLAYER_PRIVATE_ZONE + PLAYER_WIDTH,
+                    PLAYER_PRIVATE_ZONE + (PLAYER_HEIGHT / 2),
+                ),
                 PLAYER_PRIVATE_ZONE,
                 1,
                 draw_top_left=False,
@@ -574,7 +581,10 @@ class FlappyBirdEnv(gymnasium.Env):
             pygame.draw.circle(
                 shape_surf,
                 "blue",
-                (PLAYER_PRIVATE_ZONE + (PLAYER_WIDTH / 2), PLAYER_PRIVATE_ZONE + PLAYER_HEIGHT),
+                (
+                    PLAYER_PRIVATE_ZONE + (PLAYER_WIDTH / 2),
+                    PLAYER_PRIVATE_ZONE + PLAYER_HEIGHT,
+                ),
                 PLAYER_PRIVATE_ZONE,
                 1,
                 draw_top_left=False,
@@ -583,7 +593,9 @@ class FlappyBirdEnv(gymnasium.Env):
                 draw_bottom_right=True,
             )
             rotated_surf = pygame.transform.rotate(shape_surf, visible_rot)
-            self._surface.blit(rotated_surf, rotated_surf.get_rect(center=target_rect.center))
+            self._surface.blit(
+                rotated_surf, rotated_surf.get_rect(center=target_rect.center)
+            )
 
         # Score
         # (must be drawn before the player, so the player overlaps it)

@@ -22,7 +22,7 @@ def play(epoch=500, audio_on=True, render_mode="human", use_lidar=True):
         env = FrameStack(env, 12)
         q_model = DuelingDQN_v2(env.action_space.n, 2, 128, 4, 6)
         q_model.build((None, *env.observation_space.shape))
-        q_model.load_weights(MODEL_PATH + "/LIDAR_t-1_12steps.h5")
+        q_model.load_weights(MODEL_PATH + "/LIDAR_AVG_12steps.h5")
     else:
         q_model = DuelingDQN(env.action_space.n)
         q_model.build((None, *env.observation_space.shape))
