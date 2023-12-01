@@ -50,10 +50,10 @@ from flappy_bird_gymnasium.envs.constants import (
     PLAYER_FLAP_ACC,
     PLAYER_HEIGHT,
     PLAYER_MAX_VEL_Y,
+    PLAYER_PRIVATE_ZONE,
     PLAYER_ROT_THR,
     PLAYER_VEL_ROT,
     PLAYER_WIDTH,
-    PLAYER_PRIVATE_ZONE,
 )
 from flappy_bird_gymnasium.envs.lidar import LIDAR
 
@@ -271,8 +271,6 @@ class FlappyBirdEnv(gymnasium.Env):
         if self.render_mode == "human":
             self.render()
 
-        print(f"Reward: {reward}")
-
         return (
             obs,
             reward,
@@ -424,22 +422,25 @@ class FlappyBirdEnv(gymnasium.Env):
             vel_y /= PLAYER_MAX_VEL_Y
             rot /= 90
 
-        return np.array(
-            [
-                pipes[0][0],  # the last pipe's horizontal position
-                pipes[0][1],  # the last top pipe's vertical position
-                pipes[0][2],  # the last bottom pipe's vertical position
-                pipes[1][0],  # the next pipe's horizontal position
-                pipes[1][1],  # the next top pipe's vertical position
-                pipes[1][2],  # the next bottom pipe's vertical position
-                pipes[2][0],  # the next next pipe's horizontal position
-                pipes[2][1],  # the next next top pipe's vertical position
-                pipes[2][2],  # the next next bottom pipe's vertical position
-                pos_y,  # player's vertical position
-                vel_y,  # player's vertical velocity
-                rot,  # player's rotation
-            ]
-        ), None
+        return (
+            np.array(
+                [
+                    pipes[0][0],  # the last pipe's horizontal position
+                    pipes[0][1],  # the last top pipe's vertical position
+                    pipes[0][2],  # the last bottom pipe's vertical position
+                    pipes[1][0],  # the next pipe's horizontal position
+                    pipes[1][1],  # the next top pipe's vertical position
+                    pipes[1][2],  # the next bottom pipe's vertical position
+                    pipes[2][0],  # the next next pipe's horizontal position
+                    pipes[2][1],  # the next next top pipe's vertical position
+                    pipes[2][2],  # the next next bottom pipe's vertical position
+                    pos_y,  # player's vertical position
+                    vel_y,  # player's vertical velocity
+                    rot,  # player's rotation
+                ]
+            ),
+            None,
+        )
 
     def _get_observation_lidar(self) -> np.ndarray:
         # obstacles
@@ -561,7 +562,9 @@ class FlappyBirdEnv(gymnasium.Env):
             self._images["player"][self._player_idx],
             visible_rot,
         )
-        player_surface_rect = player_surface.get_rect(center=(self._player_x, self._player_y))
+        player_surface_rect = player_surface.get_rect(
+            center=(self._player_x, self._player_y)
+        )
         self._surface.blit(player_surface, player_surface_rect)
 
     def _update_display(self) -> None:
