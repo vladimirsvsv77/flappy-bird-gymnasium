@@ -271,6 +271,8 @@ class FlappyBirdEnv(gymnasium.Env):
         if self.render_mode == "human":
             self.render()
 
+        print(f"Reward: {reward}")
+
         return (
             obs,
             reward,
@@ -521,14 +523,27 @@ class FlappyBirdEnv(gymnasium.Env):
         # LIDAR
         if show_rays:
             self._lidar.draw(self._surface, self._player_x, self._player_y)
-            center_x = (self._player_x + (PLAYER_WIDTH / 2))
-            center_y = (self._player_y + (PLAYER_HEIGHT / 2))
             pygame.draw.circle(
                 self._surface,
                 "blue",
-                (center_x, center_y),
+                (self._player_x + (PLAYER_WIDTH / 2), self._player_y),
                 PLAYER_PRIVATE_ZONE,
                 1,
+                draw_top_left=False,
+                draw_top_right=True,
+                draw_bottom_left=False,
+                draw_bottom_right=True,
+            )
+            pygame.draw.circle(
+                self._surface,
+                "blue",
+                (self._player_x - (PLAYER_WIDTH / 2), self._player_y),
+                PLAYER_PRIVATE_ZONE,
+                1,
+                draw_top_left=True,
+                draw_top_right=False,
+                draw_bottom_left=True,
+                draw_bottom_right=False,
             )
 
         # Score
@@ -546,8 +561,8 @@ class FlappyBirdEnv(gymnasium.Env):
             self._images["player"][self._player_idx],
             visible_rot,
         )
-
-        self._surface.blit(player_surface, (self._player_x, self._player_y))
+        player_surface_rect = player_surface.get_rect(center=(self._player_x, self._player_y))
+        self._surface.blit(player_surface, player_surface_rect)
 
     def _update_display(self) -> None:
         """Updates the display with the current surface of the renderer.
