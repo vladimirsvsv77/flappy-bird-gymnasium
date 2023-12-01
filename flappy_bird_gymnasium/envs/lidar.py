@@ -23,8 +23,8 @@ class LIDAR:
                 surface,
                 "red",
                 (
-                    player_x + (PLAYER_WIDTH / 2),
-                    player_y,
+                    player_x + PLAYER_WIDTH,
+                    player_y + (PLAYER_HEIGHT / 2),
                 ),
                 (
                     self.collisions[i][0],
@@ -45,8 +45,8 @@ class LIDAR:
         result = np.empty([180])
 
         # LIDAR position on torso
-        offset_x = player_x + (PLAYER_WIDTH / 2)
-        offset_y = player_y
+        offset_x = player_x + PLAYER_WIDTH
+        offset_y = player_y + (PLAYER_HEIGHT / 2)
 
         # Getting player's rotation
         visible_rot = PLAYER_ROT_THR

@@ -521,13 +521,27 @@ class FlappyBirdEnv(gymnasium.Env):
         # Base (ground)
         self._surface.blit(self._images["base"], (self._ground["x"], self._ground["y"]))
 
+        # Getting player's rotation
+        visible_rot = PLAYER_ROT_THR
+        if self._player_rot <= PLAYER_ROT_THR:
+            visible_rot = self._player_rot
+
         # LIDAR
         if show_rays:
             self._lidar.draw(self._surface, self._player_x, self._player_y)
+
+            # Draw private zone
+            target_rect = pygame.Rect(
+                self._player_x - PLAYER_PRIVATE_ZONE,
+                self._player_y - PLAYER_PRIVATE_ZONE,
+                PLAYER_PRIVATE_ZONE * 2 + PLAYER_WIDTH,
+                PLAYER_PRIVATE_ZONE * 2 + PLAYER_HEIGHT,
+            )
+            shape_surf = pygame.Surface(target_rect.size, pygame.SRCALPHA)
             pygame.draw.circle(
-                self._surface,
+                shape_surf,
                 "blue",
-                (self._player_x + (PLAYER_WIDTH / 2), self._player_y),
+                (PLAYER_PRIVATE_ZONE + PLAYER_WIDTH, PLAYER_PRIVATE_ZONE + (PLAYER_HEIGHT / 2)),
                 PLAYER_PRIVATE_ZONE,
                 1,
                 draw_top_left=False,
@@ -536,9 +550,9 @@ class FlappyBirdEnv(gymnasium.Env):
                 draw_bottom_right=True,
             )
             pygame.draw.circle(
-                self._surface,
+                shape_surf,
                 "blue",
-                (self._player_x - (PLAYER_WIDTH / 2), self._player_y),
+                (PLAYER_PRIVATE_ZONE, PLAYER_PRIVATE_ZONE + (PLAYER_HEIGHT / 2)),
                 PLAYER_PRIVATE_ZONE,
                 1,
                 draw_top_left=True,
@@ -546,16 +560,35 @@ class FlappyBirdEnv(gymnasium.Env):
                 draw_bottom_left=True,
                 draw_bottom_right=False,
             )
+            pygame.draw.circle(
+                shape_surf,
+                "blue",
+                (PLAYER_PRIVATE_ZONE + (PLAYER_WIDTH / 2), PLAYER_PRIVATE_ZONE),
+                PLAYER_PRIVATE_ZONE,
+                1,
+                draw_top_left=True,
+                draw_top_right=True,
+                draw_bottom_left=False,
+                draw_bottom_right=False,
+            )
+            pygame.draw.circle(
+                shape_surf,
+                "blue",
+                (PLAYER_PRIVATE_ZONE + (PLAYER_WIDTH / 2), PLAYER_PRIVATE_ZONE + PLAYER_HEIGHT),
+                PLAYER_PRIVATE_ZONE,
+                1,
+                draw_top_left=False,
+                draw_top_right=False,
+                draw_bottom_left=True,
+                draw_bottom_right=True,
+            )
+            rotated_surf = pygame.transform.rotate(shape_surf, visible_rot)
+            self._surface.blit(rotated_surf, rotated_surf.get_rect(center=target_rect.center))
 
         # Score
         # (must be drawn before the player, so the player overlaps it)
         if show_score:
             self._draw_score()
-
-        # Getting player's rotation
-        visible_rot = PLAYER_ROT_THR
-        if self._player_rot <= PLAYER_ROT_THR:
-            visible_rot = self._player_rot
 
         # Player
         player_surface = pygame.transform.rotate(
@@ -563,7 +596,7 @@ class FlappyBirdEnv(gymnasium.Env):
             visible_rot,
         )
         player_surface_rect = player_surface.get_rect(
-            center=(self._player_x, self._player_y)
+            topleft=(self._player_x, self._player_y)
         )
         self._surface.blit(player_surface, player_surface_rect)
 
