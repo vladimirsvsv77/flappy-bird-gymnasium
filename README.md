@@ -70,7 +70,7 @@ Take a look at the sample code below:
 ```python
 import flappy_bird_gymnasium
 import gymnasium
-env = gymnasium.make("FlappyBird-v0", render_mode="human")
+env = gymnasium.make("FlappyBird-v0", render_mode="human", use_lidar=True)
 
 obs, _ = env.reset()
 while True:
