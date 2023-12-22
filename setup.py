@@ -41,6 +41,7 @@ REQUIRED_PACKAGES = [
     "gymnasium",
     "numpy",
     "pygame",
+    "matplotlib",
 ]
 
 # Packages which are only needed for testing code.

@@ -19,10 +19,10 @@ def play(epoch=500, audio_on=True, render_mode="human", use_lidar=True):
 
     # init models
     if use_lidar:
-        env = FrameStack(env, 12)
+        env = FrameStack(env, 16)
         q_model = DuelingDQN_v2(env.action_space.n, 2, 128, 4, 6)
         q_model.build((None, *env.observation_space.shape))
-        q_model.load_weights(MODEL_PATH + "/LIDAR_AVG_12steps.h5")
+        q_model.load_weights(MODEL_PATH + "/LIDAR_AVG_16steps_15px.h5")
     else:
         q_model = DuelingDQN(env.action_space.n)
         q_model.build((None, *env.observation_space.shape))
@@ -30,19 +30,22 @@ def play(epoch=500, audio_on=True, render_mode="human", use_lidar=True):
 
     q_model.summary()
 
-    if render_mode == "human" and use_lidar:
-        similarity_scores = np.dot(
-            q_model.pos_embs.position[0], np.transpose(q_model.pos_embs.position[0])
-        ) / (
-            np.linalg.norm(q_model.pos_embs.position[0], axis=-1)
-            * np.linalg.norm(q_model.pos_embs.position[0], axis=-1)
-        )
-
-        plt.imshow(similarity_scores, cmap="inferno", interpolation="nearest")
-        plt.title("Positional Embedding")
-        plt.ylabel("Timestep")
-        plt.xlabel("Timestep")
-        plt.pause(10)
+    # if render_mode == "human" and use_lidar:
+    #     similarity_scores = np.dot(
+    #         q_model.pos_embs.position[0], np.transpose(q_model.pos_embs.position[0])
+    #     ) / (
+    #         np.linalg.norm(q_model.pos_embs.position[0], axis=-1)
+    #         * np.linalg.norm(q_model.pos_embs.position[0], axis=-1)
+    #     )
+    #     similarity_scores[similarity_scores < 0.5] = 0.5
+    #
+    #     plt.figure(dpi=300)
+    #     plt.imshow(similarity_scores, cmap="inferno", interpolation="nearest")
+    #     plt.title("Positional Embedding")
+    #     plt.ylabel("Timestep")
+    #     plt.xlabel("Timestep")
+    #     plt.colorbar()
+    #     plt.pause(10)
 
     # run
     for t in range(epoch):
@@ -53,13 +56,13 @@ def play(epoch=500, audio_on=True, render_mode="human", use_lidar=True):
             action, attn_matrix = q_model.get_action(state)
             action = np.array(action, copy=False, dtype=env.env.action_space.dtype)
 
-            if render_mode == "human" and use_lidar:
-                # plotting the attention matrix
-                plt.imshow(attn_matrix[0, 0], cmap="inferno", interpolation="nearest")
-                plt.title("Attention head 0")
-                plt.ylabel("Timestep")
-                plt.xlabel("Timestep")
-                plt.pause(0.001)
+            # if render_mode == "human" and use_lidar:
+            #     # plotting the attention matrix
+            #     plt.imshow(attn_matrix[0, 0], cmap="inferno", interpolation="nearest")
+            #     plt.title("Attention head 0")
+            #     plt.ylabel("Timestep")
+            #     plt.xlabel("Timestep")
+            #     plt.pause(0.001)
 
             # Processing action
             next_state, _, done, _, info = env.step(action)
