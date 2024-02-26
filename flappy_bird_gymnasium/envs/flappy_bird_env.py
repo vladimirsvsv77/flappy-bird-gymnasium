@@ -272,13 +272,14 @@ class FlappyBirdEnv(gymnasium.Env):
             # find ray closest to the obstacle
             min_index = np.argmin(obs)
             min_value = obs[min_index] * LIDAR_MAX_DISTANCE
+            mean_value = np.mean(obs) * LIDAR_MAX_DISTANCE
 
             # In the gap
             if ((self._player_x + PLAYER_WIDTH) - up_pipe['x']) >= 0 and (self._player_x - up_pipe['x']) <= PIPE_WIDTH:
                 if "pipe_min_value" in self._nearest_stats:
                     if min_value < self._nearest_stats["pipe_min_value"]:
                         self._nearest_stats["pipe_min_value"] = min_value
-                        print(f"NEAREST TO PIPE !!!: obs: [{min_index}, {min_value}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]")
+                        print(f"NEAREST TO PIPE !!!: obs: [{min_index}, {min_value}, {mean_value}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]")
                 else:
                     self._nearest_stats["pipe_min_value"] = min_value
             
@@ -287,7 +288,7 @@ class FlappyBirdEnv(gymnasium.Env):
             if "ground_min_value" in self._nearest_stats:
                 if diff < self._nearest_stats["ground_min_value"]:
                     self._nearest_stats["ground_min_value"] = diff
-                    print(f"NEAREST TO GROUND !!!: obs: [{min_index}, {min_value}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}], Ground: {self._player_y - self._ground['y']}")
+                    print(f"NEAREST TO GROUND !!!: obs: [{min_index}, {min_value}, {mean_value}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}], Ground: {self._player_y - self._ground['y']}")
             else:
                 self._nearest_stats["ground_min_value"] = diff
          
@@ -309,7 +310,7 @@ class FlappyBirdEnv(gymnasium.Env):
                     print("IN FRONT OF")
                 elif (self._player_x - up_pipe['x']) > PIPE_WIDTH:
                     print("BEHIND")
-                print(f"obs: [{min_index}, {min_value}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}], Ground: {self._player_y - self._ground['y']}")
+                print(f"obs: [{min_index}, {min_value}, {mean_value}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}], Ground: {self._player_y - self._ground['y']}")
 
         info = {"score": self._score}
 
