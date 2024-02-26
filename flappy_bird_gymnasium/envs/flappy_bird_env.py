@@ -105,9 +105,11 @@ class FlappyBirdEnv(gymnasium.Env):
         pipe_color: str = "green",
         render_mode: Optional[str] = None,
         background: Optional[str] = "day",
+        debug: bool = True,
     ) -> None:
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
+        self._debug = debug
 
         self.action_space = gymnasium.spaces.Discrete(2)
         if use_lidar:
@@ -262,6 +264,33 @@ class FlappyBirdEnv(gymnasium.Env):
             else:
                 reward = 0.1  # reward for staying alive
 
+        # check
+        if self._debug:
+            # sort pipes by the distance between pipe and agent
+            up_pipe = sorted(self._upper_pipes, key=lambda x: np.abs(self._player_x - x['x']))[0]
+            # find ray closest to the obstacle
+            min_index = np.argmin(obs)
+            min_value = obs[min_index] * LIDAR_MAX_DISTANCE
+
+            # In the gap
+            if ((self._player_x + PLAYER_WIDTH) - up_pipe['x']) >= 0 and (self._player_x - up_pipe['x']) <= PIPE_WIDTH:
+                if "pipe_min_value" in self._nearest_stats:
+                    if min_value < self._nearest_stats["pipe_min_value"]:
+                        self._nearest_stats["pipe_min_value"] = min_value
+                        print(f"NEAREST TO PIPE !!!: obs: [{min_index}, {min_value}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]")
+                else:
+                    self._nearest_stats["pipe_min_value"] = min_value
+            
+            # Nearest to the ground
+            diff = np.abs(self._player_y - self._ground['y'])
+            if "ground_min_value" in self._nearest_stats:
+                if diff < self._nearest_stats["ground_min_value"]:
+                    self._nearest_stats["ground_min_value"] = diff
+                    print(f"NEAREST TO GROUND !!!: obs: [{min_index}, {min_value}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}], Ground: {self._player_y - self._ground['y']}")
+            else:
+                self._nearest_stats["ground_min_value"] = diff
+         
+
         # agent touch the top of the screen as punishment
         if self._player_y < 0:
             reward = -0.5
@@ -272,6 +301,14 @@ class FlappyBirdEnv(gymnasium.Env):
             reward = -1  # reward for dying
             terminal = True
             self._player_vel_y = 0
+            if self._debug:
+                if ((self._player_x + PLAYER_WIDTH) - up_pipe['x']) >= 0 and (self._player_x - up_pipe['x']) <= PIPE_WIDTH:
+                    print("BETWEEN PIPES")
+                elif ((self._player_x + PLAYER_WIDTH) - up_pipe['x']) < 0:
+                    print("IN FRONT OF")
+                elif (self._player_x - up_pipe['x']) > PIPE_WIDTH:
+                    print("BEHIND")
+                print(f"obs: [{min_index}, {min_value}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}], Ground: {self._player_y - self._ground['y']}")
 
         info = {"score": self._score}
 
@@ -295,6 +332,9 @@ class FlappyBirdEnv(gymnasium.Env):
         self._player_idx = 0
         self._loop_iter = 0
         self._score = 0
+        
+        if self._debug:
+            self._nearest_stats = {}
 
         # Generate 3 new pipes to add to upper_pipes and lower_pipes lists
         new_pipe1 = self._get_random_pipe()
@@ -373,6 +413,8 @@ class FlappyBirdEnv(gymnasium.Env):
         """Returns True if player collides with the ground (base) or a pipe."""
         # if player crashes into ground
         if self._player_y + PLAYER_HEIGHT >= self._ground["y"] - 1:
+            if self._debug:
+                print("CRASH TO THE GROUND")
             return True
         else:
             player_rect = pygame.Rect(
@@ -392,8 +434,16 @@ class FlappyBirdEnv(gymnasium.Env):
                 up_collide = player_rect.colliderect(up_pipe_rect)
                 low_collide = player_rect.colliderect(low_pipe_rect)
 
-                if up_collide or low_collide:
-                    return True
+                if self._debug:
+                    if up_collide:
+                        print("CRASH TO UPPER PIPE")
+                        return True
+                    if low_collide:
+                        print("CRASH TO LOWER PIPE")
+                        return True
+                else:
+                    if up_collide or low_collide:
+                        return True
 
         return False
 

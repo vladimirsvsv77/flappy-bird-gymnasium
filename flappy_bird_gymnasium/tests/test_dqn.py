@@ -5,9 +5,9 @@ import numpy as np
 import flappy_bird_gymnasium
 from flappy_bird_gymnasium.envs.utils import MODEL_PATH
 
-from .dueling import DuelingDQN
-from .dueling_v2 import DuelingDQN as DuelingDQN_v2
-from .framestack import FrameStack
+from flappy_bird_gymnasium.tests.dueling import DuelingDQN
+from flappy_bird_gymnasium.tests.dueling_v2 import DuelingDQN as DuelingDQN_v2
+from flappy_bird_gymnasium.tests.framestack import FrameStack
 
 plt.ion()
 
