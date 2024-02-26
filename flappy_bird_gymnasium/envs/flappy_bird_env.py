@@ -267,8 +267,8 @@ class FlappyBirdEnv(gymnasium.Env):
         # check
         if self._debug:
             # sort pipes by the distance between pipe and agent
-            up_pipe = sorted(self._upper_pipes, key=lambda x: np.abs(self._player_x - x['x']))[0]
-            low_pipe = sorted(self._lower_pipes, key=lambda x: np.abs(self._player_x - x['x']))[0]
+            up_pipe = sorted(self._upper_pipes, key=lambda x: np.sqrt((self._player_x - x['x'])**2 + (self._player_y - (x['y']+PIPE_HEIGHT))**2))[0]
+            low_pipe = sorted(self._lower_pipes, key=lambda x: np.sqrt((self._player_x - x['x'])**2 + (self._player_y - x['y'])**2))[0]
             # find ray closest to the obstacle
             min_index = np.argmin(obs)
             min_value = obs[min_index] * LIDAR_MAX_DISTANCE
@@ -279,7 +279,7 @@ class FlappyBirdEnv(gymnasium.Env):
                 if "pipe_min_value" in self._nearest_stats:
                     if min_value < self._nearest_stats["pipe_min_value"]:
                         self._nearest_stats["pipe_min_value"] = min_value
-                        print(f"NEAREST TO PIPE !!!: obs: [{min_index}, {min_value}, {mean_value}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]")
+                        # print(f"NEAREST TO PIPE !!!: obs: [{min_index}, {min_value}, {mean_value}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]")
                 else:
                     self._nearest_stats["pipe_min_value"] = min_value
             
@@ -288,7 +288,7 @@ class FlappyBirdEnv(gymnasium.Env):
             if "ground_min_value" in self._nearest_stats:
                 if diff < self._nearest_stats["ground_min_value"]:
                     self._nearest_stats["ground_min_value"] = diff
-                    print(f"NEAREST TO GROUND !!!: obs: [{min_index}, {min_value}, {mean_value}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}], Ground: {self._player_y - self._ground['y']}")
+                   #  print(f"NEAREST TO GROUND !!!: obs: [{min_index}, {min_value}, {mean_value}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}], Ground: {self._player_y - self._ground['y']}")
             else:
                 self._nearest_stats["ground_min_value"] = diff
          
@@ -304,13 +304,14 @@ class FlappyBirdEnv(gymnasium.Env):
             terminal = True
             self._player_vel_y = 0
             if self._debug:
-                if ((self._player_x + PLAYER_WIDTH) - up_pipe['x']) >= 0 and (self._player_x - up_pipe['x']) <= PIPE_WIDTH:
+                if (((self._player_x + PLAYER_WIDTH) - up_pipe['x']) > 0
+                        and (self._player_x - up_pipe['x']) <= (PIPE_WIDTH - (PLAYER_WIDTH / 3))):
                     print("BETWEEN PIPES")
-                elif ((self._player_x + PLAYER_WIDTH) - up_pipe['x']) < 0:
+                elif ((self._player_x + PLAYER_WIDTH) - up_pipe['x']) <= 0:
                     print("IN FRONT OF")
-                elif (self._player_x - up_pipe['x']) > PIPE_WIDTH:
+                elif (self._player_x - up_pipe['x']) > (PIPE_WIDTH - (PLAYER_WIDTH / 3)):
                     print("BEHIND")
-                print(f"obs: [{min_index}, {min_value}, {mean_value}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}], Ground: {self._player_y - self._ground['y']}")
+                print(f"obs: [{min_index}, {min_value}, {mean_value}], Ground: {self._player_y - self._ground['y']}")
 
         info = {"score": self._score}
 
@@ -439,9 +440,11 @@ class FlappyBirdEnv(gymnasium.Env):
                 if self._debug:
                     if up_collide:
                         print("CRASH TO UPPER PIPE")
+                        print(f"up_pipe: {[up_pipe['x'], up_pipe['y']+PIPE_HEIGHT]}, low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]")
                         return True
                     if low_collide:
                         print("CRASH TO LOWER PIPE")
+                        print(f"up_pipe: {[up_pipe['x'], up_pipe['y']+PIPE_HEIGHT]}, low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]")
                         return True
                 else:
                     if up_collide or low_collide:
