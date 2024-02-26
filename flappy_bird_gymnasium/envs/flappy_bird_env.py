@@ -268,6 +268,7 @@ class FlappyBirdEnv(gymnasium.Env):
         if self._debug:
             # sort pipes by the distance between pipe and agent
             up_pipe = sorted(self._upper_pipes, key=lambda x: np.abs(self._player_x - x['x']))[0]
+            low_pipe = sorted(self._lower_pipes, key=lambda x: np.abs(self._player_x - x['x']))[0]
             # find ray closest to the obstacle
             min_index = np.argmin(obs)
             min_value = obs[min_index] * LIDAR_MAX_DISTANCE
