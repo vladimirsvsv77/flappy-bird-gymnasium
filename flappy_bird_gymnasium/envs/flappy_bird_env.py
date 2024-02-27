@@ -267,18 +267,33 @@ class FlappyBirdEnv(gymnasium.Env):
         # check
         if self._debug:
             # sort pipes by the distance between pipe and agent
-            up_pipe = sorted(self._upper_pipes, key=lambda x: np.sqrt((self._player_x - x['x'])**2 + (self._player_y - (x['y']+PIPE_HEIGHT))**2))[0]
-            low_pipe = sorted(self._lower_pipes, key=lambda x: np.sqrt((self._player_x - x['x'])**2 + (self._player_y - x['y'])**2))[0]
+            up_pipe = sorted(
+                self._upper_pipes,
+                key=lambda x: np.sqrt(
+                    (self._player_x - x["x"]) ** 2
+                    + (self._player_y - (x["y"] + PIPE_HEIGHT)) ** 2
+                ),
+            )[0]
+            low_pipe = sorted(
+                self._lower_pipes,
+                key=lambda x: np.sqrt(
+                    (self._player_x - x["x"]) ** 2 + (self._player_y - x["y"]) ** 2
+                ),
+            )[0]
             # find ray closest to the obstacle
             min_index = np.argmin(obs)
             min_value = obs[min_index] * LIDAR_MAX_DISTANCE
             if "pipe_mean_value" in self._statistics:
-                self._statistics["pipe_mean_value"] = self._statistics["pipe_mean_value"] * 0.99 + (np.mean(obs) * LIDAR_MAX_DISTANCE) * (1 - 0.99)
+                self._statistics["pipe_mean_value"] = self._statistics[
+                    "pipe_mean_value"
+                ] * 0.99 + (np.mean(obs) * LIDAR_MAX_DISTANCE) * (1 - 0.99)
             else:
                 self._statistics["pipe_mean_value"] = np.mean(obs) * LIDAR_MAX_DISTANCE
 
             # In the gap
-            if ((self._player_x + PLAYER_WIDTH) - up_pipe['x']) >= 0 and (self._player_x - up_pipe['x']) <= PIPE_WIDTH:
+            if ((self._player_x + PLAYER_WIDTH) - up_pipe["x"]) >= 0 and (
+                self._player_x - up_pipe["x"]
+            ) <= PIPE_WIDTH:
                 if "pipe_min_value" in self._statistics:
                     if min_value < self._statistics["pipe_min_value"]:
                         self._statistics["pipe_min_value"] = min_value
@@ -286,16 +301,15 @@ class FlappyBirdEnv(gymnasium.Env):
                         # print(f"NEAREST TO PIPE !!!: obs: [{min_index}, {min_value}, {self._statistics['pipe_mean_value']}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]")
                 else:
                     self._statistics["pipe_min_value"] = min_value
-            
+
             # Nearest to the ground
-            diff = np.abs(self._player_y - self._ground['y'])
+            diff = np.abs(self._player_y - self._ground["y"])
             if "ground_min_value" in self._statistics:
                 if diff < self._statistics["ground_min_value"]:
                     self._statistics["ground_min_value"] = diff
                     # print(f"NEAREST TO GROUND !!!: obs: [{min_index}, {min_value}, {self._statistics['pipe_mean_value']}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}], Ground: {diff}")
             else:
                 self._statistics["ground_min_value"] = diff
-         
 
         # agent touch the top of the screen as punishment
         if self._player_y < 0:
@@ -308,14 +322,23 @@ class FlappyBirdEnv(gymnasium.Env):
             terminal = True
             self._player_vel_y = 0
             if self._debug:
-                if (((self._player_x + PLAYER_WIDTH) - up_pipe['x']) >= (0 + (PLAYER_WIDTH / 3))
-                        and (self._player_x - up_pipe['x']) <= (PIPE_WIDTH - (PLAYER_WIDTH / 3))):
+                if ((self._player_x + PLAYER_WIDTH) - up_pipe["x"]) >= (
+                    0 + (PLAYER_WIDTH / 3)
+                ) and (self._player_x - up_pipe["x"]) <= (
+                    PIPE_WIDTH - (PLAYER_WIDTH / 3)
+                ):
                     print("BETWEEN PIPES")
-                elif ((self._player_x + PLAYER_WIDTH) - up_pipe['x']) < (0 + (PLAYER_WIDTH / 3)):
+                elif ((self._player_x + PLAYER_WIDTH) - up_pipe["x"]) < (
+                    0 + (PLAYER_WIDTH / 3)
+                ):
                     print("IN FRONT OF")
-                elif (self._player_x - up_pipe['x']) > (PIPE_WIDTH - (PLAYER_WIDTH / 3)):
+                elif (self._player_x - up_pipe["x"]) > (
+                    PIPE_WIDTH - (PLAYER_WIDTH / 3)
+                ):
                     print("BEHIND")
-                print(f"obs: [{self._statistics['pipe_min_index']}, {self._statistics['pipe_min_value']}, {self._statistics['pipe_mean_value']}], Ground: {self._statistics['ground_min_value']}")
+                print(
+                    f"obs: [{self._statistics['pipe_min_index']}, {self._statistics['pipe_min_value']}, {self._statistics['pipe_mean_value']}], Ground: {self._statistics['ground_min_value']}"
+                )
 
         info = {"score": self._score}
 
@@ -339,7 +362,7 @@ class FlappyBirdEnv(gymnasium.Env):
         self._player_idx = 0
         self._loop_iter = 0
         self._score = 0
-        
+
         if self._debug:
             self._statistics = {}
 
@@ -444,11 +467,15 @@ class FlappyBirdEnv(gymnasium.Env):
                 if self._debug:
                     if up_collide:
                         print("CRASH TO UPPER PIPE")
-                        print(f"up_pipe: {[up_pipe['x'], up_pipe['y']+PIPE_HEIGHT]}, low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]")
+                        print(
+                            f"up_pipe: {[up_pipe['x'], up_pipe['y']+PIPE_HEIGHT]}, low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]"
+                        )
                         return True
                     if low_collide:
                         print("CRASH TO LOWER PIPE")
-                        print(f"up_pipe: {[up_pipe['x'], up_pipe['y']+PIPE_HEIGHT]}, low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]")
+                        print(
+                            f"up_pipe: {[up_pipe['x'], up_pipe['y']+PIPE_HEIGHT]}, low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]"
+                        )
                         return True
                 else:
                     if up_collide or low_collide:
