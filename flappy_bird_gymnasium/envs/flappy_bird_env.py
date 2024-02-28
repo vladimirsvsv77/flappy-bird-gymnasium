@@ -322,20 +322,14 @@ class FlappyBirdEnv(gymnasium.Env):
             terminal = True
             self._player_vel_y = 0
             if self._debug:
-                if ((self._player_x + PLAYER_WIDTH) - up_pipe["x"]) >= (
-                    0 + (PLAYER_WIDTH / 3)
-                ) and (self._player_x - up_pipe["x"]) <= (
-                    PIPE_WIDTH - (PLAYER_WIDTH / 3)
-                ):
+                if ((self._player_x + PLAYER_WIDTH) - up_pipe["x"]) > (
+                    0 + 5
+                ) and (self._player_x - up_pipe["x"]) < PIPE_WIDTH:
                     print("BETWEEN PIPES")
                 elif ((self._player_x + PLAYER_WIDTH) - up_pipe["x"]) < (
-                    0 + (PLAYER_WIDTH / 3)
+                    0 + 5
                 ):
                     print("IN FRONT OF")
-                elif (self._player_x - up_pipe["x"]) > (
-                    PIPE_WIDTH - (PLAYER_WIDTH / 3)
-                ):
-                    print("BEHIND")
                 print(
                     f"obs: [{self._statistics['pipe_min_index']}, {self._statistics['pipe_min_value']}, {self._statistics['pipe_mean_value']}], Ground: {self._statistics['ground_min_value']}"
                 )
