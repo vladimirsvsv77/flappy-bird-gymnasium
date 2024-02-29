@@ -11,9 +11,15 @@ from flappy_bird_gymnasium.tests.framestack import FrameStack
 plt.ion()
 
 
-def play(epoch=500, audio_on=True, render_mode="human", use_lidar=True):
+def play(
+    epoch=500, audio_on=True, render_mode="human", use_lidar=True, score_limit=None
+):
     env = gymnasium.make(
-        "FlappyBird-v0", audio_on=audio_on, render_mode=render_mode, use_lidar=use_lidar
+        "FlappyBird-v0",
+        audio_on=audio_on,
+        render_mode=render_mode,
+        use_lidar=use_lidar,
+        score_limit=score_limit,
     )
 
     # init models
@@ -52,7 +58,10 @@ def play(epoch=500, audio_on=True, render_mode="human", use_lidar=True):
         state = np.expand_dims(state, axis=0)
         while True:
             # Getting action
-            action, attn_matrix = q_model.get_action(state)
+            if use_lidar:
+                action, attn_matrix = q_model.get_action(state)
+            else:
+                action = q_model.get_action(state)
             action = np.array(action, copy=False, dtype=env.env.action_space.dtype)
 
             # if render_mode == "human" and use_lidar:
@@ -64,12 +73,12 @@ def play(epoch=500, audio_on=True, render_mode="human", use_lidar=True):
             #     plt.pause(0.001)
 
             # Processing action
-            next_state, _, done, _, info = env.step(action)
+            next_state, _, done, truncated, info = env.step(action)
 
             state = np.expand_dims(next_state, axis=0)
             # print(f"Obs: {state}\n" f"Action: {action}\n" f"Score: {info['score']}\n")
 
-            if done:
+            if done or truncated:
                 break
 
         print(f"Epoch: {t}, Score: {info['score']}")
@@ -80,8 +89,8 @@ def play(epoch=500, audio_on=True, render_mode="human", use_lidar=True):
 
 
 def test_play():
-    play(epoch=1, audio_on=False, render_mode=None, use_lidar=False)
-    play(epoch=1, audio_on=False, render_mode=None, use_lidar=True)
+    play(epoch=1, audio_on=False, render_mode=None, use_lidar=False, score_limit=10)
+    play(epoch=1, audio_on=False, render_mode=None, use_lidar=True, score_limit=10)
 
 
 if __name__ == "__main__":

@@ -105,11 +105,13 @@ class FlappyBirdEnv(gymnasium.Env):
         pipe_color: str = "green",
         render_mode: Optional[str] = None,
         background: Optional[str] = "day",
+        score_limit: Optional[int] = None,
         debug: bool = True,
     ) -> None:
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
         self._debug = debug
+        self._score_limit = score_limit
 
         self.action_space = gymnasium.spaces.Discrete(2)
         if use_lidar:
@@ -265,7 +267,7 @@ class FlappyBirdEnv(gymnasium.Env):
                 reward = 0.1  # reward for staying alive
 
         # check
-        if self._debug:
+        if self._debug and self._use_lidar:
             # sort pipes by the distance between pipe and agent
             up_pipe = sorted(
                 self._upper_pipes,
@@ -274,32 +276,25 @@ class FlappyBirdEnv(gymnasium.Env):
                     + (self._player_y - (x["y"] + PIPE_HEIGHT)) ** 2
                 ),
             )[0]
-            low_pipe = sorted(
-                self._lower_pipes,
-                key=lambda x: np.sqrt(
-                    (self._player_x - x["x"]) ** 2 + (self._player_y - x["y"]) ** 2
-                ),
-            )[0]
             # find ray closest to the obstacle
             min_index = np.argmin(obs)
             min_value = obs[min_index] * LIDAR_MAX_DISTANCE
+            # mean approach to the obstacle
             if "pipe_mean_value" in self._statistics:
                 self._statistics["pipe_mean_value"] = self._statistics[
                     "pipe_mean_value"
-                ] * 0.99 + (np.mean(obs) * LIDAR_MAX_DISTANCE) * (1 - 0.99)
+                ] * 0.99 + min_value * (1 - 0.99)
             else:
-                self._statistics["pipe_mean_value"] = np.mean(obs) * LIDAR_MAX_DISTANCE
+                self._statistics["pipe_mean_value"] = min_value
 
-            # In the gap
-            if ((self._player_x + PLAYER_WIDTH) - up_pipe["x"]) >= 0 and (
-                self._player_x - up_pipe["x"]
-            ) <= PIPE_WIDTH:
-                if "pipe_min_value" in self._statistics:
-                    if min_value < self._statistics["pipe_min_value"]:
-                        self._statistics["pipe_min_value"] = min_value
-                        self._statistics["pipe_min_index"] = min_index
-                else:
+            # Nearest to the pipe
+            if "pipe_min_value" in self._statistics:
+                if min_value < self._statistics["pipe_min_value"]:
                     self._statistics["pipe_min_value"] = min_value
+                    self._statistics["pipe_min_index"] = min_index
+            else:
+                self._statistics["pipe_min_value"] = min_value
+                self._statistics["pipe_min_index"] = min_index
 
             # Nearest to the ground
             diff = np.abs(self._player_y - self._ground["y"])
@@ -319,7 +314,7 @@ class FlappyBirdEnv(gymnasium.Env):
             reward = -1  # reward for dying
             terminal = True
             self._player_vel_y = 0
-            if self._debug:
+            if self._debug and self._use_lidar:
                 if ((self._player_x + PLAYER_WIDTH) - up_pipe["x"]) > (0 + 5) and (
                     self._player_x - up_pipe["x"]
                 ) < PIPE_WIDTH:
@@ -339,7 +334,7 @@ class FlappyBirdEnv(gymnasium.Env):
             obs,
             reward,
             terminal,
-            False,
+            (self._score_limit is not None) and (self._score >= self._score_limit),
             info,
         )
 
@@ -356,7 +351,7 @@ class FlappyBirdEnv(gymnasium.Env):
         self._loop_iter = 0
         self._score = 0
 
-        if self._debug:
+        if self._debug and self._use_lidar:
             self._statistics = {}
 
         # Generate 3 new pipes to add to upper_pipes and lower_pipes lists
@@ -436,7 +431,7 @@ class FlappyBirdEnv(gymnasium.Env):
         """Returns True if player collides with the ground (base) or a pipe."""
         # if player crashes into ground
         if self._player_y + PLAYER_HEIGHT >= self._ground["y"] - 1:
-            if self._debug:
+            if self._debug and self._use_lidar:
                 print("CRASH TO THE GROUND")
             return True
         else:
@@ -457,7 +452,7 @@ class FlappyBirdEnv(gymnasium.Env):
                 up_collide = player_rect.colliderect(up_pipe_rect)
                 low_collide = player_rect.colliderect(low_pipe_rect)
 
-                if self._debug:
+                if self._debug and self._use_lidar:
                     if up_collide:
                         print("CRASH TO UPPER PIPE")
                         print(

@@ -36,5 +36,4 @@ class DuelingDQN(tf.keras.Model):
 
     def get_action(self, state):
         q_value = self(state)
-        print("Q value: ", q_value, tf.math.argmax(q_value, axis=-1))
         return tf.math.argmax(q_value, axis=-1)[0]
