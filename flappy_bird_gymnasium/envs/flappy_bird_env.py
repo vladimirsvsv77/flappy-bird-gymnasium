@@ -106,7 +106,7 @@ class FlappyBirdEnv(gymnasium.Env):
         render_mode: Optional[str] = None,
         background: Optional[str] = "day",
         score_limit: Optional[int] = None,
-        debug: bool = True,
+        debug: bool = False,
     ) -> None:
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
