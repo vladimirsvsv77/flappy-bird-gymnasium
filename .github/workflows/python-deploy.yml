@@ -9,9 +9,9 @@ jobs:
     name: Deploy package
     runs-on: ubuntu-latest
     environment: release
-      permissions:
-        # IMPORTANT: this permission is mandatory for trusted publishing
-        id-token: write
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
 
     steps:
       - name: Checkout the repo
