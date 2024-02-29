@@ -298,7 +298,6 @@ class FlappyBirdEnv(gymnasium.Env):
                     if min_value < self._statistics["pipe_min_value"]:
                         self._statistics["pipe_min_value"] = min_value
                         self._statistics["pipe_min_index"] = min_index
-                        # print(f"NEAREST TO PIPE !!!: obs: [{min_index}, {min_value}, {self._statistics['pipe_mean_value']}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]")
                 else:
                     self._statistics["pipe_min_value"] = min_value
 
@@ -307,7 +306,6 @@ class FlappyBirdEnv(gymnasium.Env):
             if "ground_min_value" in self._statistics:
                 if diff < self._statistics["ground_min_value"]:
                     self._statistics["ground_min_value"] = diff
-                    # print(f"NEAREST TO GROUND !!!: obs: [{min_index}, {min_value}, {self._statistics['pipe_mean_value']}], up_pipe: [{up_pipe['x']}, {up_pipe['y']+PIPE_HEIGHT}], low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}], Ground: {diff}")
             else:
                 self._statistics["ground_min_value"] = diff
 
@@ -322,16 +320,17 @@ class FlappyBirdEnv(gymnasium.Env):
             terminal = True
             self._player_vel_y = 0
             if self._debug:
-                if ((self._player_x + PLAYER_WIDTH) - up_pipe["x"]) > (
-                    0 + 5
-                ) and (self._player_x - up_pipe["x"]) < PIPE_WIDTH:
+                if ((self._player_x + PLAYER_WIDTH) - up_pipe["x"]) > (0 + 5) and (
+                    self._player_x - up_pipe["x"]
+                ) < PIPE_WIDTH:
                     print("BETWEEN PIPES")
-                elif ((self._player_x + PLAYER_WIDTH) - up_pipe["x"]) < (
-                    0 + 5
-                ):
+                elif ((self._player_x + PLAYER_WIDTH) - up_pipe["x"]) < (0 + 5):
                     print("IN FRONT OF")
                 print(
-                    f"obs: [{self._statistics['pipe_min_index']}, {self._statistics['pipe_min_value']}, {self._statistics['pipe_mean_value']}], Ground: {self._statistics['ground_min_value']}"
+                    f"obs: [{self._statistics['pipe_min_index']},"
+                    f"{self._statistics['pipe_min_value']},"
+                    f"{self._statistics['pipe_mean_value']}],"
+                    f"Ground: {self._statistics['ground_min_value']}"
                 )
 
         info = {"score": self._score}
@@ -462,13 +461,17 @@ class FlappyBirdEnv(gymnasium.Env):
                     if up_collide:
                         print("CRASH TO UPPER PIPE")
                         print(
-                            f"up_pipe: {[up_pipe['x'], up_pipe['y']+PIPE_HEIGHT]}, low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]"
+                            f"up_pipe: {[up_pipe['x'], up_pipe['y']+PIPE_HEIGHT]},"
+                            f"low_pipe: {low_pipe},"
+                            f"player: [{self._player_x}, {self._player_y}]"
                         )
                         return True
                     if low_collide:
                         print("CRASH TO LOWER PIPE")
                         print(
-                            f"up_pipe: {[up_pipe['x'], up_pipe['y']+PIPE_HEIGHT]}, low_pipe: {low_pipe}, player: [{self._player_x}, {self._player_y}]"
+                            f"up_pipe: {[up_pipe['x'], up_pipe['y']+PIPE_HEIGHT]},"
+                            f"low_pipe: {low_pipe},"
+                            f"player: [{self._player_x}, {self._player_y}]"
                         )
                         return True
                 else:
