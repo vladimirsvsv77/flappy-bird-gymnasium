@@ -16,7 +16,7 @@ observations or RGB-arrays (images) representing the game's screen.
 
 ### `FlappyBird-v0`
 1. option
-* The LIDAR sensor 180 readings (Paper: [Playing Flappy Bird Based on Motion Recognition Using a Transformer Model and LIDAR Sensor](https://www.mdpi.com/1424-8220/24/6/1905)))
+* The LIDAR sensor 180 readings (Paper: [Playing Flappy Bird Based on Motion Recognition Using a Transformer Model and LIDAR Sensor](https://www.mdpi.com/1424-8220/24/6/1905))
 
 2. option
 * the last pipe's horizontal position
