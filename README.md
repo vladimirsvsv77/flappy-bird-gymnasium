@@ -12,9 +12,10 @@ based on the [flappy-bird-gym](https://github.com/Talendar/flappy-bird-gym) proj
 ## State space
 
 The "FlappyBird-v0" environment, yields simple numerical information about the game's state as
-observations or RGB-arrays (images) representing the game's screen.
+observations representing the game's screen.
 
 ### `FlappyBird-v0`
+There exist two options for the observations:  
 1. option
 * The LIDAR sensor 180 readings (Paper: [Playing Flappy Bird Based on Motion Recognition Using a Transformer Model and LIDAR Sensor](https://www.mdpi.com/1424-8220/24/6/1905))
 
@@ -31,9 +32,6 @@ observations or RGB-arrays (images) representing the game's screen.
 * player's vertical position
 * player's vertical velocity
 * player's rotation
-
-3. option
-* or RGB-array (image) representing the game's screen
 
 ## Action space
 
